@@ -1,0 +1,10 @@
+<config>
+<!--
+
+    http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/net/NetConnection.html#proxyType
+    
+-->
+<connectUrl proxyType="CONNECT">rtmp://localhost:1935</connectUrl>
+<connectUrl proxyType="best">rtmps://localhost:443</connectUrl>
+<connectUrl proxyType="CONNECT">rtmpt://localhost:80</connectUrl>
+</config>
