@@ -20,6 +20,7 @@ package {
 		private var connectUrls:Vector.<Array>;
 
 		private var isConnected:Boolean = false;
+		private var isInCall:Boolean = false;
 
         private var connectionTimer:Timer;
 
@@ -166,28 +167,17 @@ package {
         public function onHangup(uuid:String, cause:String):void {
             log("onHangUp "+uuid+" "+cause);
             dispatchEvent (new CallDisconnectedEvent(CallDisconnectedEvent.DISCONNECTED,  cause));
-            isConnected = false;
+            isInCall = false;
         }
 
         public function callState(uuid:String, msg:String):void {
             log("callState "+uuid+" "+msg);
             dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.CALLSTATE,  msg));
-			if(msg == "ACTIVE"){
+			if(!isInCall && msg == "ACTIVE"){
                 dispatchEvent (new CallConnectedEvent(CallConnectedEvent.CONNECTED, uuid,  ""));
                 uid = uuid;
-                isConnected = true;
+                isInCall = true;
             }
-/*
-			//missed call
-			if (msg == "onUaCallCancelled") {
-				dispatchEvent (new MissedCallEvent(MissedCallEvent.CALLMISSED,  msg));
-				isConnected = false;
-				//if (incomingCall) {
-					//SipCallWindow.close();
-					//SipMissedCallWindow.show(displayName, incomingURL, "SIP Phone: Missed Call");
-				//}
-			}
-*/
 		}
 		
 		public function incoming(source:String, sourceName:String, destination:String, destinationName:String):*  {		
@@ -204,44 +194,13 @@ package {
 		//
 		//********************************************************************************************
 		
-		
-/*
-		public function doOpen():void {
-			if (useEncryptedPwd) {
-				netConnection.call("initialize", null, uid, username, getA1ParamMD5());
-				netConnection.call("open", null, obproxy, uid, phone, username, "", sipRealm, sipServer);
-			}
-			else {
-				netConnection.call("open", null, obproxy, uid, phone, username, password, sipRealm, sipServer);
-			}
-		}
-*/
-
 		public function doCall(dialStr:String):void {
             netConnection.call("makeCall", null, dialStr, "", {SignallingNumber:callerNumber});
 			//netConnection.call("call", null, uid, dialStr);
 		}
 
-/*
-		public function doTransfer(transferTo:String):void {
-			netConnection.call("transfer", null, uid, transferTo);
-		}
-*/
-
-/*
-		public function joinConf():void {
-			netConnection.call("call", null, uid, this.conference);
-		}
-*/
-
-/*
-		public function addToConf():void {
-			netConnection.call("transfer", null, uid, this.conference);
-		}
-*/
-
 		public function doCallChar(chr:String):void {
-			if (isConnected) {
+			if (isInCall) {
                 netConnection.call("sendDTMF", null, chr, 600);
 				//netConnection.call("dtmf", null, uid, chr);
 			}
@@ -251,24 +210,7 @@ package {
             if(uid != null){
 			    netConnection.call("hangup", null, uid);
             }
-			if (isConnected) {
-				isConnected = false;
-			}
 		}
 		
-/*
-		public function doAccept():void {
-			netConnection.call("accept", null, uid);			
-		}
-		
-		public function doStreamStatus(status:String):void {
-			netConnection.call("streamStatus", null, uid, status);	
-		}
-		
-		public function doClose1():void {
-			netConnection.call("unregister", null, uid);	
-		}
-*/
-
 	}
 }
