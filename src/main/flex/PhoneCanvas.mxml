@@ -232,7 +232,6 @@
 				changeVolume(null);
 				pickupButton.visible 	= false;
 				dialButton.enabled   	= false;				
-				//transferButton.visible	= true;
 				clearButton.enabled  	= true;				
 				
 				if (conferenceFlag) {
@@ -255,7 +254,6 @@
 				}
 				if(outgoingNetStream != null) {
 					outgoingNetStream.attachAudio(null);
-					//outgoingNetStream.publish(null);
 					outgoingNetStream.close();
 				}
 				
@@ -438,7 +436,6 @@
 				
 				dialButton.enabled = false;
 				clearButton.enabled = true;
-			    //transferButton.visible= true;
 			}
 			
 			public function doClose1():void {
@@ -446,8 +443,9 @@
 					
 			}
 			public function doCallChar(chr:String):void {
-				parentApplication.red5Manager.doCallChar(chr);
-				addChr(chr);
+				if(parentApplication.sendDTMF(chr)){
+					addChr(chr);
+				}
 			}
 			
 			public function addChr(chr:String):void {

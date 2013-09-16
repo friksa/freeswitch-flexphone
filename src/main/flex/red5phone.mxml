@@ -11,16 +11,26 @@
 			import mx.core.FlexGlobals;
 			import Red5MessageEvent;
 			private var configXML:XML;
-			public var red5Manager:Red5Manager     = null;
+			public var red5Manager:Red5Manager = null;
+			private var isDTMFAllowed:Boolean = true;
 			private var dtmf:String = "";
-			private var dtmfDelay:int = 2000;
+			private var dtmfDelay:int = 500;
 			private var number:String = "";
 			private var autodial:Boolean = false; 
+			
 
 			public function presetup():void
 			{
 			}
 						
+			public function sendDTMF(char:String):Boolean{
+				if(isDTMFAllowed){
+					red5Manager.doCallChar(char);
+					return true;
+				}
+				return false;
+			}
+			
             private function log(message:String):void
             {
                 trace (message);
@@ -48,7 +58,7 @@
 				log("dtmf: "+dtmf);
 				dtmfDelay = parseInt(FlexGlobals.topLevelApplication.parameters.dtmfDelay);
 				if(isNaN(dtmfDelay)){
-					dtmfDelay = 2000;
+					dtmfDelay = 500;
 				}
 				log("dtmfDelay: "+dtmfDelay);
 				autodial = FlexGlobals.topLevelApplication.parameters.autodial == "true";
@@ -66,27 +76,25 @@
 			}
 
 			private function onComplete(event:Event):void {
-			try{
-                phoneCanvas.setFocus();
-				configXML 	= new XML(event.target.data);
-			    log("config.xml \n"+configXML);
-                var urls:Vector.<Array> = new Vector.<Array>();
-                for each (var url:XML in configXML.connectUrl){
-                    //log(url.toString());
-                    urls.push([url.@proxyType, url.toString()]);
-                }
-				if(urls.length > 0){
-                    phoneCanvas.statusTxt.text = "Connecting...";
-                    red5Manager.connectRed5(urls);
-				}else{
-                    phoneCanvas.statusTxt.text = "Not connected";
-				}
-                /*
-				*/
-            }catch(error:Error){
-                log(error.toString()) ;
-                log(error.getStackTrace());
-            }
+				try{
+	                phoneCanvas.setFocus();
+					configXML 	= new XML(event.target.data);
+				    log("config.xml \n"+configXML);
+	                var urls:Vector.<Array> = new Vector.<Array>();
+	                for each (var url:XML in configXML.connectUrl){
+	                    //log(url.toString());
+	                    urls.push([url.@proxyType, url.toString()]);
+	                }
+					if(urls.length > 0){
+	                    phoneCanvas.statusTxt.text = "Connecting...";
+	                    red5Manager.connectRed5(urls);
+					}else{
+	                    phoneCanvas.statusTxt.text = "Not connected";
+					}
+	            }catch(error:Error){
+	                log(error.toString()) ;
+	                log(error.getStackTrace());
+	            }
 			}
 
 			private function clientConnectedEvent(event:ClientConnectedEvent):void{
@@ -112,6 +120,11 @@
 				phoneCanvas.statusTxt.text = "Call established";
 				phoneCanvas.callConnected(red5Manager.netConnection, event.playName, event.publishName);
 				if(dtmf != null && dtmf.length > 0){
+					/*
+					 * Es duerfen keine DTMF von Benutzer akzeptiert werden bis die
+					 * per Parameter mitgegebene DTMF abegesendet sind.
+					 */
+					isDTMFAllowed = false;
 				    var timer:Timer = new Timer(dtmfDelay, 1);
 				    timer.addEventListener(TimerEvent.TIMER_COMPLETE, dtmfTimerCompleteHandler);
 				    timer.start();
@@ -119,6 +132,7 @@
 			}
 
 			private function dtmfTimerCompleteHandler(event:TimerEvent):void{
+				isDTMFAllowed = true;
 				if(dtmf != null && dtmf.length > 0){
 				    log("Sending DFMT: "+dtmf);
     			    for(var i:int = 0; i < dtmf.length; i++){
