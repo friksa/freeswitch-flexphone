@@ -145,12 +145,10 @@ package {
 
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
             log("AsyncErrorEvent: " + event);
-           trace("AsyncErrorEvent: " + event);
         }
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
             log("securityErrorHandler: " + event);
-            trace("securityErrorHandler: " + event);
         }
         
      

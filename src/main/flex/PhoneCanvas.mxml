@@ -107,7 +107,7 @@
 				mic = getMicrophone();
 		
 				if(mic == null){
-					trace("No available microphone");
+					log("No available microphone");
 				} else {
 					mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
 					mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
@@ -139,7 +139,7 @@
 				case "Microphone.Unmuted":
 					break;
 				default:
-					trace("unknown micStatusHandler event: " + event);
+					log("unknown micStatusHandler event: " + event);
 				}
 			}
 			
@@ -355,7 +355,7 @@
 			} 
 			
 			private function asyncErrorHandler(event:AsyncErrorEvent):void {
-	           trace("AsyncErrorEvent: " + event);
+	           log("AsyncErrorEvent: " + event);
 	        }
 	        
 	        private function playStatus(event:Object):void {}

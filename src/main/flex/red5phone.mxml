@@ -108,7 +108,7 @@
             }
 
 			private function callConnectedEvent(event:CallConnectedEvent):void {
-				trace("CallConnectedEvent " + event.publishName + " " + event.playName);
+				log("CallConnectedEvent " + event.publishName + " " + event.playName);
 				phoneCanvas.statusTxt.text = "Call established";
 				phoneCanvas.callConnected(red5Manager.netConnection, event.playName, event.publishName);
 				if(dtmf != null && dtmf.length > 0){
@@ -128,7 +128,7 @@
 			}
 
 			private function callDisconnectedEvent(event:CallDisconnectedEvent):void {
-				trace("CallDisconnectedEvent " + event.message);
+				log("CallDisconnectedEvent " + event.message);
 				phoneCanvas.callDisconnected(event);
 				/*
 				 * Wenn eine Zielrufnummer als Parameter mitgegeben wurde, dann diese wieder voreinstellen
@@ -139,7 +139,7 @@
 			}
 			
 			private function missedCallEvent(event:MissedCallEvent):void {
-				trace("CallDisconnectedEvent " + event.message);
+				log("CallDisconnectedEvent " + event.message);
 				phoneCanvas.missedCall();
 			}
 			
