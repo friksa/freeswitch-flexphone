@@ -92,6 +92,7 @@ package {
                     if(isConnected){
                         dispatchEvent(new ClientDisconnectedEvent());
                     }
+                    isConnected = false;
                     break;
 
                 case "NetConnection.Connect.Rejected":

@@ -131,7 +131,7 @@
 				trace("CallDisconnectedEvent " + event.message);
 				phoneCanvas.callDisconnected(event);
 				/*
-				 * Wenn eine Zeilrufnummer als Parameter mitgegeben wurde, dann diese wieder voreinstellen
+				 * Wenn eine Zielrufnummer als Parameter mitgegeben wurde, dann diese wieder voreinstellen
 				 */
 				if(number != null && number.length > 0){
 					phoneCanvas.setNumberToCall(number);
