@@ -104,6 +104,7 @@
 
 			private function clientConnectedEvent(event:ClientConnectedEvent):void{
 			    log("Connected");
+			    phoneCanvas.connectedToServer();
 			    if(autodial && number != null && number.length > 0){
 			    	log("Calling "+number);
 			    	phoneCanvas.doCall2(number);
@@ -114,10 +115,12 @@
 
             private function clientDisconnectedEvent(event:ClientDisconnectedEvent):void{
                 log("Disconnected");
-            }
+			    phoneCanvas.disconnectedFromServer();
+           }
 
             private function clientConnectionFailedEvent(event:ClientConnectionFailedEvent):void{
                 log("Connection failed");
+			    phoneCanvas.disconnectedFromServer();
             }
 
 			private function callConnectedEvent(event:CallConnectedEvent):void {
