@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" creationComplete="init()" 
 	preinitialize="presetup()"
-	width="266" height="262" 
+	width="220" height="140"
 	xmlns:local="*" alpha="1.0" backgroundGradientAlphas="[1.0, 1.0]" backgroundGradientColors="[#B0B5AA, #B0B5AA]" borderStyle="solid" cornerRadius="10">
 	   
 	<mx:Script>
@@ -16,6 +16,7 @@
 			private var dtmf:String = "";
 			private var dtmfDelay:int = 500;
 			private var number:String = "";
+			public var request2SpeakMacro:String = null;
 			private var autodial:Boolean = false; 
 			
 
@@ -49,7 +50,6 @@
 				red5Manager.addEventListener(ClientConnectionFailedEvent.TYPE, clientConnectionFailedEvent);
 				red5Manager.addEventListener(CallConnectedEvent.CONNECTED, callConnectedEvent);
 				red5Manager.addEventListener(CallDisconnectedEvent.DISCONNECTED, callDisconnectedEvent);
-				red5Manager.addEventListener(MissedCallEvent.CALLMISSED, missedCallEvent);
 				number = FlexGlobals.topLevelApplication.parameters.number;
 				log("number: "+number);
 				red5Manager.callerNumber = FlexGlobals.topLevelApplication.parameters.callerNumber;
@@ -62,8 +62,10 @@
 				}
 				log("dtmfDelay: "+dtmfDelay);
 				autodial = FlexGlobals.topLevelApplication.parameters.autodial == "true";
+				request2SpeakMacro = FlexGlobals.topLevelApplication.parameters.request2SpeakMacro;
+				log('request2SpeakMacro: '+request2SpeakMacro);
 				log("autodial: "+autodial);
-                phoneCanvas.statusTxt.text = "Initialized";
+                log("Initialized");
 				var loader:URLLoader = new URLLoader();
 			    var request:URLRequest = new URLRequest(FlexGlobals.topLevelApplication.parameters.configUrl);//new URLRequest("config.xml");
 
@@ -86,10 +88,10 @@
 	                    urls.push([url.@proxyType, url.toString()]);
 	                }
 					if(urls.length > 0){
-	                    phoneCanvas.statusTxt.text = "Connecting...";
+	                    log("Connecting...");
 	                    red5Manager.connectRed5(urls);
 					}else{
-	                    phoneCanvas.statusTxt.text = "Not connected";
+	                    log("Not connected");
 					}
 	            }catch(error:Error){
 	                log(error.toString()) ;
@@ -98,7 +100,7 @@
 			}
 
 			private function clientConnectedEvent(event:ClientConnectedEvent):void{
-			    phoneCanvas.statusTxt.text = "Connected";
+			    log("Connected");
 			    if(autodial && number != null && number.length > 0){
 			    	log("Calling "+number);
 			    	phoneCanvas.doCall2(number);
@@ -108,16 +110,15 @@
 			}
 
             private function clientDisconnectedEvent(event:ClientDisconnectedEvent):void{
-                phoneCanvas.statusTxt.text = "Disconnected";
+                log("Disconnected");
             }
 
             private function clientConnectionFailedEvent(event:ClientConnectionFailedEvent):void{
-                phoneCanvas.statusTxt.text = "Connection failed";
+                log("Connection failed");
             }
 
 			private function callConnectedEvent(event:CallConnectedEvent):void {
 				log("CallConnectedEvent " + event.publishName + " " + event.playName);
-				phoneCanvas.statusTxt.text = "Call established";
 				phoneCanvas.callConnected(red5Manager.netConnection, event.playName, event.publishName);
 				if(dtmf != null && dtmf.length > 0){
 					/*
@@ -134,13 +135,17 @@
 			private function dtmfTimerCompleteHandler(event:TimerEvent):void{
 				isDTMFAllowed = true;
 				if(dtmf != null && dtmf.length > 0){
-				    log("Sending DFMT: "+dtmf);
-    			    for(var i:int = 0; i < dtmf.length; i++){
-    			        phoneCanvas.doCallChar(dtmf.charAt(i));
-    			    }
+					sendAllDtmf(dtmf);
     			}
 			}
 
+			public function sendAllDtmf(digits:String):void{
+				log("Sending DFMT: "+digits);
+				for(var i:int = 0; i < digits.length; i++){
+					phoneCanvas.doCallChar(digits.charAt(i));
+				}
+			}
+			
 			private function callDisconnectedEvent(event:CallDisconnectedEvent):void {
 				log("CallDisconnectedEvent " + event.message);
 				phoneCanvas.callDisconnected(event);
@@ -150,11 +155,6 @@
 				if(number != null && number.length > 0){
 					phoneCanvas.setNumberToCall(number);
 				}
-			}
-			
-			private function missedCallEvent(event:MissedCallEvent):void {
-				log("CallDisconnectedEvent " + event.message);
-				phoneCanvas.missedCall();
 			}
 			
 			private function keyHandler(event:KeyboardEvent):void {
@@ -190,7 +190,7 @@
 						phoneCanvas.doCallChar("9");
 						break;
 					case 8:
-						phoneCanvas.removeChr();
+//						phoneCanvas.removeChr();
 						break;
 					case 127:
 						

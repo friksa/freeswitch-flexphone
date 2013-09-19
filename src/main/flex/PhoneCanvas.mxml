@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="220" height="140"  creationComplete="init()"   backgroundColor="#3E413E" backgroundAlpha="0.0" borderStyle="solid" cornerRadius="0" alpha="1.0" click="setCanvasFocus()">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="220" height="140"  creationComplete="init()"   backgroundColor="#3E413E" backgroundAlpha="0.0" borderStyle="solid" cornerRadius="0" alpha="1.0">
 
 	<mx:Script>
 		<![CDATA[
@@ -28,6 +28,9 @@
 			private var elapsed:uint;
 			private var lastTime:uint;
 
+			[@Embed(source="assets/req2speak.gif")]
+			public const request2SpeakIcon:Class;
+		
 			[@Embed(source="assets/phone_37x16.png")]
 			public const phone:Class;
 		
@@ -89,8 +92,6 @@
 
 			private function init():void {
 			    log("init phone canvas");
-				timer =  new Timer(1000, 0);
-				timer.addEventListener(TimerEvent.TIMER, timerHandler);
 
 				ringSound = new ringingClass();
 				dialSound = new dialingClass();
@@ -99,12 +100,6 @@
 				receivedCalls   = new Array();
 				dialedCalls 	= new Array();
 			}
-			
-			
-			private function setCanvasFocus():void {
-				this.setFocus();
-			}
-
 			
 			public function initMicrophone():void {
 				mic = getMicrophone();
@@ -193,31 +188,9 @@
 				this.netConnection = netConnection;
 			}
 			
-			private function getPublishName():String {
-				return publishName;
-			}
-			
-			private function setPublishName(publishName:String):void {
-				this.publishName = publishName;
-			}
-			
-			public function incomingCall(event:IncomingCallEvent):void {
-				statusTxt.text = "Incoming Call : " + (event.sourceName == "" ? event.source : event.sourceName);
-				dialButton.enabled   = false;
-				if(!isRinging) {
-					ringChannel = ringSound.play();
-					isRinging = true;
-				}		
-				incomingCallObj = new Object();
-				incomingCallObj.label = event.sourceName;
-				incomingCallObj.data  = event.source;	
-				incomingCallObj.time  = new Date().toString();
-			}
-		
 			public function callConnected(netConnection:NetConnection, playName:String, publishName:String):void {
 				isConnected = true;
 				setNetConnection(netConnection);
-				setPublishName(publishName);
 				incomingNetStream = new NetStream(netConnection);
 				incomingNetStream.bufferTime = 0;
 				incomingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
@@ -248,8 +221,6 @@
 				if (conferenceFlag) {
 					conferenceFlag = false;					
 				}
-				startTimer();
-				
 				if(isDialing) {
 					dialChannel.stop();
 					isDialing = false;
@@ -257,7 +228,7 @@
 				
 			}
 			
-			private function toggleDialButton(dial:Boolean){
+			private function toggleDialButton(dial:Boolean):void{
 				if(dial){
 					dialButton.setStyle("fillColors",["0x929b15", "0x929b15"]);
 				}else{
@@ -280,16 +251,6 @@
 				
 				volSlider.enabled    = false;
 				micSlider.enabled    = false;
-				if (event.message != "onUaCallFailed"){
-				statusTxt.text       = "Call terminated";
-				}
-				else {
-				statusTxt.text       = "Busy or Rejected";
-				}
-				stopTimer();
-
-				dialnumTxt.text = "";
-
 				if(isRinging) {
 					ringChannel.stop();
 					isRinging = false;
@@ -301,37 +262,6 @@
 					dialChannel.stop();
 					isDialing = false;
 				}
-			}
-			
-			public function missedCall():void {
-				
-				statusTxt.text       = "Missed Call " + incomingCallObj.label;
-				isConnected 		 = false;
-				toggleDialButton(true);
-				if(isRinging) {
-					ringChannel.stop();
-					isRinging = false;
-				}
-				if(missedCalls.length >= 10) {
-					missedCalls.pop();
-				}
-				missedCalls.unshift(incomingCallObj);
-				missedCallIndicator.source = redFlag;
-			}
-			
-			public function mailBoxStatus(isWaiting:Boolean, newMessage:String, oldMessage:String):void {
-				if(isWaiting) {
-					voicemail.source = mail;
-					voicemail.toolTip = newMessage + " New Message(s) and " + oldMessage + " Old Message(s)"
-				}
-				else {
-					voicemail.source = null;
-					voicemail.toolTip = ""
-				}
-			}
-			
-			public function mailBoxCount(newMessage:String, oldMessage:String):void {
-				voicemail.toolTip = newMessage + " New Message(s) and " + oldMessage + " Old Message(s)"
 			}
 			
 			private function netStatus (evt:NetStatusEvent ):void {		 
@@ -370,17 +300,15 @@
 
 			private function doCall():void {
 				if(numberToCall != null){
-					dialnumTxt.text = numberToCall;
+					doCall2(numberToCall);
 				}
-			   doCall2(dialnumTxt.text);
 			}
 
 			public function doCall2(dialNum:String):void {
-			    dialnumTxt.text = dialNum;
 				parentApplication.red5Manager.doCall(dialNum);
 				
 				toggleDialButton(true);
-				statusTxt.text = "Calling......";
+				log("Calling......");
 				if(!isDialing) {
 					dialChannel = dialSound.play(0,10);			
 					isDialing = true;
@@ -395,12 +323,6 @@
 				dialedCalls.unshift(dialedCallObj);
 				
 			}
-			public function doTransfer():void {
-				parentApplication.red5Manager.doTransfer(dialnumTxt.text);
-			}
-			public function doTransfer2(transferTo:String):void {
-				parentApplication.red5Manager.doTransfer(dialnumTxt.text);
-			}
 			private function doHangUp():void {
 				parentApplication.red5Manager.doHangUp();
 				
@@ -408,8 +330,6 @@
 				toggleDialButton(true);
 				volSlider.enabled    = false;
 				micSlider.enabled    = false;
-				stopTimer();
-				
 				if(muted) {
 					micIcon.source = micActive;
 				}
@@ -445,25 +365,11 @@
 					
 			}
 			public function doCallChar(chr:String):void {
-				if(parentApplication.sendDTMF(chr)){
-					addChr(chr);
-				}
-			}
-			
-			public function addChr(chr:String):void {
-				dialnumTxt.text += chr;
+				parentApplication.sendDTMF(chr);
 			}
 			
 			public function setNumberToCall(number:String):void{
-				dialnumTxt.text = number;
 				numberToCall = number;
-			}
-			
-			public function removeChr():void {
-				var i:int = dialnumTxt.text.length;
-				if(i > 0) {
-					dialnumTxt.text = dialnumTxt.text.substr(0, (i-1));
-				}			
 			}
 			
 			private function changeVolume(event:Event):void {
@@ -477,50 +383,6 @@
 				mic.gain = (micSlider.value)
 			}
 			
-			public function startTimer():void {
-				lastTime = (new Date()).time;
-				timer.start();
-				elapsed = 0;
-			}
-			
-			public function stopTimer():void {
-				timer.stop();
-				durationTxt.text = "";
-			}
-			
-			public function timerHandler(event:TimerEvent):void {
-				var tmp:uint = lastTime;
-				lastTime = (new Date()).time;
-				elapsed += lastTime - tmp;
-			
-				var ms:uint = elapsed;	
-				var div:uint = 1000 * 60 * 60;
-				var hour:uint = ms / div;
-				ms -= hour * div;
-				div /= 60;
-				var min:uint = ms / div;
-				ms -= min * div;
-				div /= 60;
-				var sec:uint = ms / div;
-				ms -= sec * div;
-			
-				var tx:String = hour.toString() + ":"
-				if (min < 10) tx += "0";
-				tx += min.toString() + ":";
-				if (sec < 10) tx += "0";
-				tx += sec.toString() ;
-			
-				durationTxt.text = tx;
-			}
-			
-			private function showHistory():void {
-				var historyWin:HistoryWindow = new HistoryWindow();
-				PopUpManager.addPopUp(historyWin, this, true);
-				PopUpManager.centerPopUp(historyWin);
-				
-				missedCallIndicator.source = null;
-			}
-			
 			private function doConference():void {
 			
 				conferenceFlag = true;
@@ -532,23 +394,21 @@
 			
 			}
 					
+			private function request2Speak():void{
+				if(parentApplication.request2SpeakMacro != null){
+					parentApplication.sendAllDtmf(parentApplication.request2SpeakMacro);
+				}
+			}
 		]]>
 	</mx:Script>
 	
-	<mx:Canvas x="10" y="10" width="200" height="78" borderStyle="solid" cornerRadius="10" backgroundColor="#F0F7FE"  borderColor="#191919" borderThickness="1" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-		<mx:Text x="69" y="2" width="100" color="#FF0000" id="statusTxt"/>
-		<mx:Text x="10" y="30" width="200" id="dialnumTxt" fontWeight="normal" fontSize="12" fontFamily="Verdana"/>
-		<mx:Text x="134" y="54"  width="91" id="durationTxt" textAlign="right"/>
-		<mx:Image x="20" y="55" id="missedCallIndicator" width="16" height="16"/>
-		<mx:Image x="54" y="55" width="16" height="16" id="voicemail"/>
-		<mx:Text x="10" y="2" width="51" id="registerTxt" color="#20ED16"/>
-	</mx:Canvas>
-	<mx:Button x="10" y="104" width="128" icon="{phone}" fillAlphas="[1.0, 1.0]" fillColors="[0x929b15, 0x929b15]" click="toggleCall()" color="#FFFFFF" id="dialButton" themeColor="#929b15"/>
-	<mx:Button x="10" y="134" width="128" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"/>
-	<mx:Image x="150" y="105" source="{speaker}" width="16" height="16"/>
-	<mx:Image id="micIcon" x="176" y="105" width="16" height="16" click="toggleMute()" source="{micActive}" />
-	<mx:VSlider id="volSlider" x="150" y="132" height="84" minimum="0" maximum="100" value="70"  snapInterval="5" showDataTip="false"
+	<mx:Button x="10" y="14" width="128" icon="{phone}" fillAlphas="[1.0, 1.0]" fillColors="[0x929b15, 0x929b15]" click="toggleCall()" color="#FFFFFF" id="dialButton" themeColor="#929b15"/>
+	<mx:Button x="10" y="44" width="128" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"/>
+	<mx:Button x="10" y="74" width="128" icon="{request2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="request2Speak()" color="#FFFFFF" id="request2SpeakButton"/>
+	<mx:Image x="150" y="15" source="{speaker}" width="16" height="16"/>
+	<mx:Image id="micIcon" x="176" y="15" width="16" height="16" click="toggleMute()" source="{micActive}" />
+	<mx:VSlider id="volSlider" x="150" y="42" height="84" minimum="0" maximum="100" value="70"  snapInterval="5" showDataTip="false"
 		allowTrackClick="true" liveDragging="true"  thumbDrag="changeVolume(event)" enabled="false" />
-	<mx:VSlider id="micSlider" x="176" y="132" height="84"  minimum="0" maximum="100" value="50" snapInterval="5" showDataTip="false"
+	<mx:VSlider id="micSlider" x="176" y="42" height="84"  minimum="0" maximum="100" value="50" snapInterval="5" showDataTip="false"
 		allowTrackClick="true" liveDragging="true"  thumbDrag="changeMicVolume(event)" enabled="false" />
 </mx:Canvas>
