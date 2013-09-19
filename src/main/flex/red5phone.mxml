@@ -17,6 +17,7 @@
 			private var dtmfDelay:int = 500;
 			private var number:String = "";
 			public var request2SpeakMacro:String = null;
+			public var removeRequest2SpeakMacro:String = null;
 			private var autodial:Boolean = false; 
 			
 
@@ -62,9 +63,11 @@
 				}
 				log("dtmfDelay: "+dtmfDelay);
 				autodial = FlexGlobals.topLevelApplication.parameters.autodial == "true";
+				log("autodial: "+autodial);
 				request2SpeakMacro = FlexGlobals.topLevelApplication.parameters.request2SpeakMacro;
 				log('request2SpeakMacro: '+request2SpeakMacro);
-				log("autodial: "+autodial);
+				removeRequest2SpeakMacro = FlexGlobals.topLevelApplication.parameters.removeRequest2SpeakMacro;
+				log('removeRequest2SpeakMacro: '+removeRequest2SpeakMacro);
                 log("Initialized");
 				var loader:URLLoader = new URLLoader();
 			    var request:URLRequest = new URLRequest(FlexGlobals.topLevelApplication.parameters.configUrl);//new URLRequest("config.xml");
