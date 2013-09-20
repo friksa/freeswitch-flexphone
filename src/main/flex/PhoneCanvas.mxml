@@ -181,6 +181,7 @@
 			
 			private function resetMuteButton():void{
 				toggleMuteButton.setStyle("icon",micMute);
+				toggleMuteButton.selected = false;
 			}
 			
 			/**
@@ -461,7 +462,7 @@
 	
 	<mx:Button x="10" y="14" width="128" icon="{phone}" fillAlphas="[1.0, 1.0]" fillColors="[0x929b15, 0x929b15]" click="toggleCall()" 
 		color="#FFFFFF" id="dialButton" themeColor="#929b15" enabled="false"/>
-	<mx:Button x="10" y="39" width="128" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
+	<mx:Button x="10" y="39" width="128" toggle="true" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
 		 enabled="false"/>
 	<mx:Button x="10" y="64" width="128" toggle="true" icon="{request2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 
 		id="request2SpeakButton"  enabled="false"/>

@@ -18,7 +18,7 @@
 			private var number:String = "";
 			public var request2SpeakMacro:String = null;
 			public var removeRequest2SpeakMacro:String = null;
-			public var callOperatorMacro = null;
+			public var callOperatorMacro:String = null;
 			private var autodial:Boolean = false; 
 			
 
