@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="220" height="140"  creationComplete="init()"   backgroundColor="#3E413E" backgroundAlpha="0.0" borderStyle="solid" cornerRadius="0" alpha="1.0">
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	width="220" height="140"  creationComplete="init()"   backgroundColor="#3E413E" backgroundAlpha="0.0" borderStyle="solid" cornerRadius="0" alpha="1.0">
 
 	<mx:Script>
 		<![CDATA[
@@ -29,10 +32,13 @@
 			private var lastTime:uint;
 
 			
-			[@Embed(source="assets/req2speak_remove.gif")]
+			[@Embed(source="assets/callToOperator.png")]
+			public const callToOperator:Class;
+			
+			[@Embed(source="assets/rtsDeny.png")]
 			public const withdrawRequest2SpeakIcon:Class;
 			
-			[@Embed(source="assets/req2speak.gif")]
+			[@Embed(source="assets/rtsAccept.png")]
 			public const request2SpeakIcon:Class;
 		
 			[@Embed(source="assets/phone_37x16.png")]
@@ -397,7 +403,16 @@
 					parentApplication.red5Manager.joinConf();			
 			
 			}
-					
+
+			private function toggleRTS(){
+				if(!request2SpeakButton.selected){
+					request2SpeakButton.setStyle("icon", request2SpeakIcon);
+					withdrawRequest2Speak();
+				}else{
+					request2SpeakButton.setStyle("icon", withdrawRequest2SpeakIcon);
+					request2Speak();
+				}
+			}
 			private function request2Speak():void{
 				if(parentApplication.request2SpeakMacro != null){
 					parentApplication.sendAllDtmf(parentApplication.request2SpeakMacro);
@@ -409,30 +424,42 @@
 				}
 			}
 			
+			private function callOperator():void{
+				if(parentApplication.callOperatorMacro != null){
+					parentApplication.sendAllDtmf(parentApplication.callOperatorMacro);
+				}
+			}
+			
 			public function connectedToServer():void{
 				dialButton.enabled = true;
 				toggleMuteButton.enabled = true;
 				request2SpeakButton.enabled = true;
-				removeRequest2SpeakButton.enabled = true;
+//				removeRequest2SpeakButton.enabled = true;
+				callOperatorButton.enabled = true;
 			}
 			
 			public function disconnectedFromServer():void{
 				dialButton.enabled = false;
 				toggleMuteButton.enabled = false;
 				request2SpeakButton.enabled = false;
-				removeRequest2SpeakButton.enabled = false;
+//				removeRequest2SpeakButton.enabled = false;
+				callOperatorButton.enabled = false;
 			}
 		]]>
 	</mx:Script>
 	
 	<mx:Button x="10" y="14" width="128" icon="{phone}" fillAlphas="[1.0, 1.0]" fillColors="[0x929b15, 0x929b15]" click="toggleCall()" 
 		color="#FFFFFF" id="dialButton" themeColor="#929b15" enabled="false"/>
-	<mx:Button x="10" y="44" width="128" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
+	<mx:Button x="10" y="39" width="128" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
 		 enabled="false"/>
-	<mx:Button x="10" y="74" width="128" icon="{request2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="request2Speak()" color="#FFFFFF" 
+	<mx:Button x="10" y="64" width="128" toggle="true" icon="{request2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 
 		id="request2SpeakButton"  enabled="false"/>
-	<mx:Button x="10" y="104" width="128" icon="{withdrawRequest2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="withdrawRequest2Speak()" 
+<!--
+	<mx:Button x="78" y="64" width="60" icon="{withdrawRequest2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="withdrawRequest2Speak()" 
 		color="#FFFFFF" id="removeRequest2SpeakButton"  enabled="false"/>
+-->
+	<mx:Button x="10" y="89" width="128" icon="{callToOperator}" fillAlphas="[1.0, 1.0]" click="callOperator()" 
+		color="#FFFFFF" id="callOperatorButton"  enabled="false"/>
 	<mx:Image x="150" y="15" source="{speaker}" width="16" height="16"/>
 	<mx:Image id="micIcon" x="176" y="15" width="16" height="16" click="toggleMute()" source="{micActive}" />
 	<mx:VSlider id="volSlider" x="150" y="42" height="84" minimum="0" maximum="100" value="70"  snapInterval="5" showDataTip="false"

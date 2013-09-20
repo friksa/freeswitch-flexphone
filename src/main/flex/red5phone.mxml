@@ -18,6 +18,7 @@
 			private var number:String = "";
 			public var request2SpeakMacro:String = null;
 			public var removeRequest2SpeakMacro:String = null;
+			public var callOperatorMacro = null;
 			private var autodial:Boolean = false; 
 			
 
@@ -68,6 +69,8 @@
 				log('request2SpeakMacro: '+request2SpeakMacro);
 				removeRequest2SpeakMacro = FlexGlobals.topLevelApplication.parameters.removeRequest2SpeakMacro;
 				log('removeRequest2SpeakMacro: '+removeRequest2SpeakMacro);
+				callOperatorMacro = FlexGlobals.topLevelApplication.parameters.callOperatorMacro;
+				log('callOperatorMacro: '+callOperatorMacro);
                 log("Initialized");
 				var loader:URLLoader = new URLLoader();
 			    var request:URLRequest = new URLRequest(FlexGlobals.topLevelApplication.parameters.configUrl);//new URLRequest("config.xml");
