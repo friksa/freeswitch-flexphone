@@ -173,7 +173,7 @@
 						custom_obj.onPlayStatus = playStatus;
 						outgoingNetStream.client = custom_obj;
 						micIcon.source = micActive;
-						toggleMuteButton.setStyle("icon",micMute);
+						resetMuteButton();
 						muted = false;
 					}
 				}
@@ -182,6 +182,12 @@
 			private function resetMuteButton():void{
 				toggleMuteButton.setStyle("icon",micMute);
 				toggleMuteButton.selected = false;
+			}
+			
+			private function unmute():void{
+				if(muted){
+					toggleMute();
+				}
 			}
 			
 			/**
@@ -446,6 +452,7 @@
 			
 			private function callOperator():void{
 				if(parentApplication.callOperatorMacro != null){
+					unmute();
 					parentApplication.sendAllDtmf(parentApplication.callOperatorMacro);
 				}
 			}
