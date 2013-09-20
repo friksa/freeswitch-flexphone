@@ -179,6 +179,10 @@
 				}
 			}
 			
+			private function resetMuteButton():void{
+				toggleMuteButton.setStyle("icon",micMute);
+			}
+			
 			/**
 			 * Initiate dial or hang up
 			 */
@@ -224,6 +228,11 @@
 				
 				volSlider.enabled 	 = true;
 				micSlider.enabled 	 = true;
+				toggleMuteButton.enabled = true;
+				muted = false;
+				request2SpeakButton.enabled = true;
+//				removeRequest2SpeakButton.enabled = true;
+				callOperatorButton.enabled = true;
 
 				changeVolume(null);
 				toggleDialButton(false);
@@ -261,13 +270,19 @@
 				
 				volSlider.enabled    = false;
 				micSlider.enabled    = false;
+				resetMuteButton();
+				muted = false;
+				toggleMuteButton.enabled = false;
+				resetRTSButton();
+				request2SpeakButton.enabled = false;
+//				removeRequest2SpeakButton.enabled = false;
+				callOperatorButton.enabled = false;
+
 				if(isRinging) {
 					ringChannel.stop();
 					isRinging = false;
 				}
-				if(muted) {
-					micIcon.source = micActive;
-				}
+				micIcon.source = micActive;
 				if(isDialing) {
 					dialChannel.stop();
 					isDialing = false;
@@ -340,9 +355,7 @@
 				toggleDialButton(true);
 				volSlider.enabled    = false;
 				micSlider.enabled    = false;
-				if(muted) {
-					micIcon.source = micActive;
-				}
+				micIcon.source = micActive;
 				if(isDialing) {
 					dialChannel.stop();
 					isDialing = false;
@@ -404,7 +417,7 @@
 			
 			}
 
-			private function toggleRTS(){
+			private function toggleRTS():void{
 				if(!request2SpeakButton.selected){
 					request2SpeakButton.setStyle("icon", request2SpeakIcon);
 					withdrawRequest2Speak();
@@ -413,6 +426,12 @@
 					request2Speak();
 				}
 			}
+			
+			private function resetRTSButton():void{
+				request2SpeakButton.setStyle("icon", request2SpeakIcon);
+				request2SpeakButton.selected = false;
+			}
+			
 			private function request2Speak():void{
 				if(parentApplication.request2SpeakMacro != null){
 					parentApplication.sendAllDtmf(parentApplication.request2SpeakMacro);
@@ -432,18 +451,10 @@
 			
 			public function connectedToServer():void{
 				dialButton.enabled = true;
-				toggleMuteButton.enabled = true;
-				request2SpeakButton.enabled = true;
-//				removeRequest2SpeakButton.enabled = true;
-				callOperatorButton.enabled = true;
 			}
 			
 			public function disconnectedFromServer():void{
 				dialButton.enabled = false;
-				toggleMuteButton.enabled = false;
-				request2SpeakButton.enabled = false;
-//				removeRequest2SpeakButton.enabled = false;
-				callOperatorButton.enabled = false;
 			}
 		]]>
 	</mx:Script>
