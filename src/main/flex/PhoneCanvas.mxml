@@ -167,6 +167,9 @@
 							micIcon.source = micMute;
 							toggleMuteButton.setStyle("icon",micActive);
 							muted = true;
+							if(parentApplication.muteMacro != null){
+								parentApplication.sendAllDtmf(parentApplication.muteMacro);
+							}
 						}
 					}
 					else {
@@ -182,6 +185,9 @@
 						micIcon.source = micActive;
 						resetMuteButton();
 						muted = false;
+						if(parentApplication.unmuteMacro != null){
+							parentApplication.sendAllDtmf(parentApplication.unmuteMacro);
+						}
 					}
 				}
 			}

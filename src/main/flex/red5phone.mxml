@@ -19,6 +19,8 @@
 			public var request2SpeakMacro:String = null;
 			public var removeRequest2SpeakMacro:String = null;
 			public var callOperatorMacro:String = null;
+			public var muteMacro:String = null;
+			public var unmuteMacro:String = null;
 			private var autodial:Boolean = false; 
 			
 
@@ -40,6 +42,10 @@
 				log('removeRequest2SpeakMacro: '+removeRequest2SpeakMacro);
 				callOperatorMacro = FlexGlobals.topLevelApplication.parameters.callOperatorMacro;
 				log('callOperatorMacro: '+callOperatorMacro);
+				muteMacro = FlexGlobals.topLevelApplication.parameters.muteMacro;
+				log('muteMacro: '+muteMacro);
+				unmuteMacro = FlexGlobals.topLevelApplication.parameters.unmuteMacro;
+				log('unmuteMacro: '+unmuteMacro);
 			}
 						
 			public function sendDTMF(char:String):Boolean{
