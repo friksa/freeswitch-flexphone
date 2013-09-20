@@ -109,6 +109,13 @@
 				missedCalls 	= new Array();
 				receivedCalls   = new Array();
 				dialedCalls 	= new Array();
+				if(parentApplication.removeRequest2SpeakMacro != null){
+					request2SpeakButton.visible= true;
+				}
+			
+				if(parentApplication.callOperatorMacro != null){
+					callOperatorButton.visible = true;
+				}
 			}
 			
 			public function initMicrophone():void {
@@ -238,7 +245,7 @@
 				toggleMuteButton.enabled = true;
 				muted = false;
 				request2SpeakButton.enabled = true;
-//				removeRequest2SpeakButton.enabled = true;
+// removeRequest2SpeakButton.enabled = true;
 				callOperatorButton.enabled = true;
 
 				changeVolume(null);
@@ -282,7 +289,7 @@
 				toggleMuteButton.enabled = false;
 				resetRTSButton();
 				request2SpeakButton.enabled = false;
-//				removeRequest2SpeakButton.enabled = false;
+// removeRequest2SpeakButton.enabled = false;
 				callOperatorButton.enabled = false;
 
 				if(isRinging) {
@@ -472,13 +479,9 @@
 	<mx:Button x="10" y="39" width="128" toggle="true" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
 		 enabled="false"/>
 	<mx:Button x="10" y="64" width="128" toggle="true" icon="{request2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 
-		id="request2SpeakButton"  enabled="false"/>
-<!--
-	<mx:Button x="78" y="64" width="60" icon="{withdrawRequest2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="withdrawRequest2Speak()" 
-		color="#FFFFFF" id="removeRequest2SpeakButton"  enabled="false"/>
--->
+		id="request2SpeakButton"  enabled="false" visible="false"/>
 	<mx:Button x="10" y="89" width="128" icon="{callToOperator}" fillAlphas="[1.0, 1.0]" click="callOperator()" 
-		color="#FFFFFF" id="callOperatorButton"  enabled="false"/>
+		color="#FFFFFF" id="callOperatorButton"  enabled="false" visible="false"/>
 	<mx:Image x="150" y="15" source="{speaker}" width="16" height="16"/>
 	<mx:Image id="micIcon" x="176" y="15" width="16" height="16" click="toggleMute()" source="{micActive}" />
 	<mx:VSlider id="volSlider" x="150" y="42" height="84" minimum="0" maximum="100" value="70"  snapInterval="5" showDataTip="false"

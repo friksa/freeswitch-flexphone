@@ -24,6 +24,22 @@
 
 			public function presetup():void
 			{
+				log("callerNumber: "+FlexGlobals.topLevelApplication.parameters.callerNumber);
+				dtmf = FlexGlobals.topLevelApplication.parameters.dtmf;
+				log("dtmf: "+dtmf);
+				dtmfDelay = parseInt(FlexGlobals.topLevelApplication.parameters.dtmfDelay);
+				if(isNaN(dtmfDelay)){
+					dtmfDelay = 500;
+				}
+				log("dtmfDelay: "+dtmfDelay);
+				autodial = FlexGlobals.topLevelApplication.parameters.autodial == "true";
+				log("autodial: "+autodial);
+				request2SpeakMacro = FlexGlobals.topLevelApplication.parameters.request2SpeakMacro;
+				log('request2SpeakMacro: '+request2SpeakMacro);
+				removeRequest2SpeakMacro = FlexGlobals.topLevelApplication.parameters.removeRequest2SpeakMacro;
+				log('removeRequest2SpeakMacro: '+removeRequest2SpeakMacro);
+				callOperatorMacro = FlexGlobals.topLevelApplication.parameters.callOperatorMacro;
+				log('callOperatorMacro: '+callOperatorMacro);
 			}
 						
 			public function sendDTMF(char:String):Boolean{
@@ -55,22 +71,6 @@
 				number = FlexGlobals.topLevelApplication.parameters.number;
 				log("number: "+number);
 				red5Manager.callerNumber = FlexGlobals.topLevelApplication.parameters.callerNumber;
-				log("callerNumber: "+FlexGlobals.topLevelApplication.parameters.callerNumber);
-				dtmf = FlexGlobals.topLevelApplication.parameters.dtmf;
-				log("dtmf: "+dtmf);
-				dtmfDelay = parseInt(FlexGlobals.topLevelApplication.parameters.dtmfDelay);
-				if(isNaN(dtmfDelay)){
-					dtmfDelay = 500;
-				}
-				log("dtmfDelay: "+dtmfDelay);
-				autodial = FlexGlobals.topLevelApplication.parameters.autodial == "true";
-				log("autodial: "+autodial);
-				request2SpeakMacro = FlexGlobals.topLevelApplication.parameters.request2SpeakMacro;
-				log('request2SpeakMacro: '+request2SpeakMacro);
-				removeRequest2SpeakMacro = FlexGlobals.topLevelApplication.parameters.removeRequest2SpeakMacro;
-				log('removeRequest2SpeakMacro: '+removeRequest2SpeakMacro);
-				callOperatorMacro = FlexGlobals.topLevelApplication.parameters.callOperatorMacro;
-				log('callOperatorMacro: '+callOperatorMacro);
                 log("Initialized");
 				var loader:URLLoader = new URLLoader();
 			    var request:URLRequest = new URLRequest(FlexGlobals.topLevelApplication.parameters.configUrl);//new URLRequest("config.xml");
