@@ -165,11 +165,8 @@
 							outgoingNetStream.close();
 							outgoingNetStream = null;
 							micIcon.source = micMute;
-							toggleMuteButton.setStyle("icon",micActive);
+//							toggleMuteButton.setStyle("icon",micActive);
 							muted = true;
-							if(parentApplication.muteMacro != null){
-								parentApplication.sendAllDtmf(parentApplication.muteMacro);
-							}
 						}
 					}
 					else {
@@ -183,12 +180,18 @@
 						custom_obj.onPlayStatus = playStatus;
 						outgoingNetStream.client = custom_obj;
 						micIcon.source = micActive;
-						resetMuteButton();
+//						resetMuteButton();
 						muted = false;
-						if(parentApplication.unmuteMacro != null){
-							parentApplication.sendAllDtmf(parentApplication.unmuteMacro);
-						}
+//						if(parentApplication.unmuteMacro != null){
+//							parentApplication.sendAllDtmf(parentApplication.unmuteMacro);
+//						}
 					}
+				}
+			}
+			
+			private function toggleMuteDTMF():void{
+				if(parentApplication.muteMacro != null){
+					parentApplication.sendAllDtmf(parentApplication.muteMacro);
 				}
 			}
 			
@@ -482,7 +485,7 @@
 	
 	<mx:Button x="10" y="14" width="128" icon="{phone}" fillAlphas="[1.0, 1.0]" fillColors="[0x929b15, 0x929b15]" click="toggleCall()" 
 		color="#FFFFFF" id="dialButton" themeColor="#929b15" enabled="false"/>
-	<mx:Button x="10" y="39" width="128" toggle="true" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
+	<mx:Button x="10" y="39" width="128" toggle="false" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMuteDTMF()" color="#FFFFFF" id="toggleMuteButton"
 		 enabled="false"/>
 	<mx:Button x="10" y="64" width="128" toggle="true" icon="{request2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 
 		id="request2SpeakButton"  enabled="false" visible="false"/>
