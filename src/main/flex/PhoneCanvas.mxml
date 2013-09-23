@@ -31,6 +31,13 @@
 			private var elapsed:uint;
 			private var lastTime:uint;
 
+			private var strings:Object = {
+					en:{call:"Call", rts:"Request to speak", operator_call:"Operator call", mute:"Mute on/off"},
+					es:{call:"llamar", rts:"Eliminar petici\u00f3n de palabra", operator_call:"Operator call", mute:"Silenciado activado/desactivado"},
+					de:{call:"Anrufen", rts:"Wortmeldung", operator_call:"Mit dem Operator verbinden", mute:"Stummschalten"},
+					fr:{call:"Appeler", rts:"Supprimer le message vocal", operator_call:"Appel d'op\u00e9rateur", mute:"Mode muet marche/arr\u00eat"},
+					it:{call:"Chiamare", rts:"Parola concessa", operator_call:"Operator Call", mute:"Mute on/off"}
+			};
 			
 			[@Embed(source="assets/callToOperator.png")]
 			public const callToOperator:Class;
@@ -100,6 +107,13 @@
             }
         }
 
+        private function getString(lang:String, id:String):String{
+        	var str:String = strings[lang][id];
+        	if(str == null){
+        		str = lang+":"+id;
+        	}
+        	return str;
+        }
 			private function init():void {
 			    log("init phone canvas");
 
@@ -116,6 +130,11 @@
 				if(parentApplication.callOperatorMacro != null){
 					callOperatorButton.visible = true;
 				}
+				var lang:String = parentApplication.lang;
+				dialButton.toolTip = getString(lang, "call");
+				toggleMuteButton.toolTip = getString(lang, "mute");
+				request2SpeakButton.toolTip = getString(lang, "rts");
+				callOperatorButton.toolTip = getString(lang, "operator_call");
 			}
 			
 			public function initMicrophone():void {

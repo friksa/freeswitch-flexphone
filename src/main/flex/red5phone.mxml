@@ -8,6 +8,7 @@
 		<![CDATA[
 			
 			import flash.external.*;
+			import flash.system.*;
 			import mx.core.FlexGlobals;
 			import Red5MessageEvent;
 			private var configXML:XML;
@@ -22,6 +23,7 @@
 			public var muteMacro:String = null;
 			public var unmuteMacro:String = null;
 			private var autodial:Boolean = false; 
+			public var lang:String = "en";
 			
 
 			public function presetup():void
@@ -46,6 +48,14 @@
 				log('muteMacro: '+muteMacro);
 				unmuteMacro = FlexGlobals.topLevelApplication.parameters.unmuteMacro;
 				log('unmuteMacro: '+unmuteMacro);
+				lang = FlexGlobals.topLevelApplication.parameters.lang;
+				if(lang == null){
+					lang = Capabilities.language;
+				}
+				if(lang != "en" && lang != "de" && lang != "fr" && lang != "es" && lang != "it"){
+					lang = "en";
+				}
+				log('lang: '+lang);
 			}
 						
 			public function sendDTMF(char:String):Boolean{
