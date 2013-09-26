@@ -179,10 +179,6 @@ package {
             }
 		}
 		
-		public function incoming(source:String, sourceName:String, destination:String, destinationName:String):*  {		
-			dispatchEvent (new IncomingCallEvent(IncomingCallEvent.INCOMING, source,  sourceName, destination, destinationName ));
-		}
-        
         public function connected(suid:String):* {
             log("Session connected: "+suid);
 		}
