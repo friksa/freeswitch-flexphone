@@ -130,6 +130,8 @@
 				if(parentApplication.callOperatorMacro != null){
 					callOperatorButton.visible = true;
 				}
+				
+				dialButton.visible = !parentApplication.autodial;
 				var lang:String = parentApplication.lang;
 				dialButton.toolTip = getString(lang, "call");
 				toggleMuteButton.toolTip = getString(lang, "mute");
@@ -503,7 +505,7 @@
 	</mx:Script>
 	
 	<mx:Button x="10" y="14" width="128" icon="{phone}" fillAlphas="[1.0, 1.0]" fillColors="[0x929b15, 0x929b15]" click="toggleCall()" 
-		color="#FFFFFF" id="dialButton" themeColor="#929b15" enabled="false"/>
+		color="#FFFFFF" id="dialButton" themeColor="#929b15" enabled="false" visible="false"/>
 	<mx:Button x="10" y="39" width="128" toggle="false" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMuteDTMF()" color="#FFFFFF" id="toggleMuteButton"
 		 enabled="false"/>
 	<mx:Button x="10" y="64" width="128" toggle="true" icon="{request2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 

@@ -22,7 +22,7 @@
 			public var callOperatorMacro:String = null;
 			public var muteMacro:String = null;
 			public var unmuteMacro:String = null;
-			private var autodial:Boolean = false; 
+			public var autodial:Boolean = false; 
 			public var lang:String = "en";
 			
 
