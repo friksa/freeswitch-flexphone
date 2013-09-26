@@ -17,13 +17,7 @@
 			private var mic:Microphone 				= null;
 			private var isConnected:Boolean			= false;
 			private var muted:Boolean			    = false;
-			private var isRinging:Boolean			= false;
-			private var isDialing:Boolean			= false;
-			private var ringSound:Sound 			= null
-			private var dialSound:Sound 			= null
 			private var req:URLRequest 				= null;
-			private var ringChannel:SoundChannel    = null;
-			private var dialChannel:SoundChannel    = null;
 			private var conferenceFlag:Boolean 	= false
 			private var numberToCall:String = null;
 
@@ -81,11 +75,6 @@
 			[@Embed(source="assets/mail_16x16.png")]
 			public const mail:Class;
 
-       		[@Embed(source="assets/ringing.mp3")]
-			private var ringingClass:Class; 
-			
-			[@Embed(source="assets/dialing.mp3")] 
-			private var dialingClass:Class; 
 			[Bindable]
 			public var missedCalls:Array;
 
@@ -117,8 +106,6 @@
 			private function init():void {
 			    log("init phone canvas");
 
-				ringSound = new ringingClass();
-				dialSound = new dialingClass();
 				initMicrophone();
 				missedCalls 	= new Array();
 				receivedCalls   = new Array();
@@ -280,15 +267,6 @@
 
 				changeVolume(null);
 				toggleDialButton(false);
-				
-				if (conferenceFlag) {
-					conferenceFlag = false;					
-				}
-				if(isDialing) {
-					dialChannel.stop();
-					isDialing = false;
-				}		
-				
 			}
 			
 			private function toggleDialButton(dial:Boolean):void{
@@ -322,15 +300,7 @@
 // removeRequest2SpeakButton.enabled = false;
 				callOperatorButton.enabled = false;
 
-				if(isRinging) {
-					ringChannel.stop();
-					isRinging = false;
-				}
 				micIcon.source = micActive;
-				if(isDialing) {
-					dialChannel.stop();
-					isDialing = false;
-				}
 			}
 			
 			private function netStatus (evt:NetStatusEvent ):void {		 
@@ -378,10 +348,6 @@
 				
 				toggleDialButton(true);
 				log("Calling......");
-				if(!isDialing) {
-					dialChannel = dialSound.play(0,10);			
-					isDialing = true;
-				}
 				if(dialedCalls.length >= 10) {
 					dialedCalls.pop();
 				}
@@ -400,24 +366,11 @@
 				volSlider.enabled    = false;
 				micSlider.enabled    = false;
 				micIcon.source = micActive;
-				if(isDialing) {
-					dialChannel.stop();
-					isDialing = false;
-				}
-			        if(isRinging) {
-					ringChannel.stop();
-					isRinging = false;
-				}
 			}
 			
 			
 			private function doAccept():void {
 				parentApplication.red5Manager.doAccept();
-				
-				if(isRinging) {
-					ringChannel.stop();
-					isRinging = false;
-				}
 				
 				if(receivedCalls.length >= 10) {
 					receivedCalls.pop();
