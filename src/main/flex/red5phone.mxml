@@ -7,6 +7,7 @@
 	<mx:Script>
 		<![CDATA[
 			
+		    import flash.utils.*;
 			import flash.external.*;
 			import flash.system.*;
 			import mx.core.FlexGlobals;
@@ -166,8 +167,17 @@
 
 			public function sendAllDtmf(digits:String):void{
 				log("Sending DFMT: "+digits);
+				var timeout:int = 0; 
+				var y:int = 0;
+				/*
+				 * Kleine Pause zwischen den DTMFs anlegen, sonst werden gleiche Ziffern auf der 
+				 * Empfaengerseite zusammen zu einer 'geklebt'
+				 */
 				for(var i:int = 0; i < digits.length; i++){
-					phoneCanvas.doCallChar(digits.charAt(i));
+					setTimeout(function():void{
+						phoneCanvas.doCallChar(digits.charAt(y++));
+					}, timeout);
+					timeout = timeout + 500;
 				}
 			}
 			

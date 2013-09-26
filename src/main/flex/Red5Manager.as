@@ -196,7 +196,8 @@ package {
 
 		public function doCallChar(chr:String):void {
 			if (isInCall) {
-                netConnection.call("sendDTMF", null, chr, 600);
+                netConnection.call("sendDTMF", null, chr, 100);
+                
 				//netConnection.call("dtmf", null, uid, chr);
 			}
 		}
