@@ -2,7 +2,7 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" creationComplete="init()" 
 	preinitialize="presetup()"
 	width="220" height="140"
-	xmlns:local="*" alpha="1.0" backgroundGradientAlphas="[1.0, 1.0]" backgroundGradientColors="[#B0B5AA, #B0B5AA]" borderStyle="solid" cornerRadius="10">
+	xmlns:local="*" alpha="1.0" backgroundGradientAlphas="[1.0, 1.0]" backgroundGradientColors="[#DEDEDE, #DEDEDE]" borderStyle="solid" cornerRadius="10">
 	   
 	<mx:Script>
 		<![CDATA[

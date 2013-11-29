@@ -2,7 +2,7 @@
 <mx:Canvas 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:s="library://ns.adobe.com/flex/spark"
-	width="220" height="140"  creationComplete="init()"   backgroundColor="#3E413E" backgroundAlpha="0.0" borderStyle="solid" cornerRadius="0" alpha="1.0">
+	creationComplete="init()"  >
 
 	<mx:Script>
 		<![CDATA[
@@ -32,16 +32,16 @@
 					it:{call:"Chiamare", rts:"Parola concessa", operator_call:"Operator Call", mute:"Mute on/off"}
 			};
 			
-			[@Embed(source="assets/callToOperator.png")]
+			[@Embed(source="assets/dtag_operator.png")]
 			public const callToOperator:Class;
 			
-			[@Embed(source="assets/rtsDeny.png")]
+			[@Embed(source="assets/dtag_wortmeldung.png")]
 			public const withdrawRequest2SpeakIcon:Class;
 			
-			[@Embed(source="assets/rtsAccept.png")]
+			[@Embed(source="assets/dtag_wortmeldung.png")]
 			public const request2SpeakIcon:Class;
 		
-			[@Embed(source="assets/phone_37x16.png")]
+			[@Embed(source="assets/dtag_call.png")]
 			public const phone:Class;
 		
 			[@Embed(source="assets/gray.png")]
@@ -53,13 +53,13 @@
 			[@Embed(source="assets/red.png")]
 			public const red:Class;
 
-			[@Embed(source="assets/microphone.png")]
+			[@Embed(source="assets/dtag_micro_on.png")]
 			public const micActive:Class;
 
-			[@Embed(source="assets/icon_phone-mute_16x16.png")]
+			[@Embed(source="assets/dtag_micro_off.png")]
 			public const micMute:Class;
 
-			[@Embed(source="assets/icon_speaker_16x16.png")]
+			[@Embed(source="assets/dtag_lautsprecher.png")]
 			public const speaker:Class;
 			
 			[@Embed(source="assets/conference_16x16.png")]
@@ -257,9 +257,9 @@
 			
 			private function toggleDialButton(dial:Boolean):void{
 				if(dial){
-					dialButton.setStyle("fillColors",["0x929b15", "0x929b15"]);
+					dialButton.setStyle("fillColors",["0x42AB1F", "0x42AB1F"]);
 				}else{
-					dialButton.setStyle("fillColors",["0xFF5A00", "0xB44001"]);
+					dialButton.setStyle("fillColors",["0xDE2121", "0xDE2121"]);
 				}
 			}
 			
@@ -432,18 +432,18 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Button x="10" y="14" width="128" icon="{phone}" fillAlphas="[1.0, 1.0]" fillColors="[0x929b15, 0x929b15]" click="toggleCall()" 
-		color="#FFFFFF" id="dialButton" themeColor="#929b15" enabled="false" visible="false"/>
-	<mx:Button x="10" y="39" width="128" toggle="false" icon="{micMute}" fillAlphas="[1.0, 1.0]" click="toggleMuteDTMF()" color="#FFFFFF" id="toggleMuteButton"
-		 enabled="false"/>
-	<mx:Button x="10" y="64" width="128" toggle="true" icon="{request2SpeakIcon}" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 
-		id="request2SpeakButton"  enabled="false" visible="false"/>
-	<mx:Button x="10" y="89" width="128" icon="{callToOperator}" fillAlphas="[1.0, 1.0]" click="callOperator()" 
-		color="#FFFFFF" id="callOperatorButton"  enabled="false" visible="false"/>
-	<mx:Image x="150" y="15" source="{speaker}" width="16" height="16"/>
-	<mx:Image id="micIcon" x="176" y="15" width="16" height="16" click="toggleMute()" source="{micActive}" />
-	<mx:VSlider id="volSlider" x="150" y="42" height="84" minimum="0" maximum="100" value="70"  snapInterval="5" showDataTip="false"
+	<mx:Button x="10" y="3" width="90" height="30" icon="{phone}" cornerRadius="0" fillAlphas="[1.0, 1.0]" fillColors="[0x42AB1F, 0x42AB1F]" click="toggleCall()" 
+		color="#FFFFFF" id="dialButton" themeColor="#42AB1F" enabled="false" visible="false"/>
+	<mx:Button x="10" y="36" width="90" height="30" toggle="false" icon="{micMute}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="toggleMuteDTMF()" color="#FFFFFF" id="toggleMuteButton"
+		 enabled="false" fillColors="[0xBBBBBB, 0xBBBBBB]" borderColor="0xAAAAAA"/>
+	<mx:Button x="10" y="69" width="90" height="30" toggle="true" icon="{request2SpeakIcon}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 
+		id="request2SpeakButton"  enabled="false" visible="true" fillColors="[0xBBBBBB, 0xBBBBBB]"/>
+	<mx:Button x="10" y="102" width="90" height="30" icon="{callToOperator}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="callOperator()" 
+		color="#FFFFFF" id="callOperatorButton"  enabled="false" visible="true" fillColors="[0xBBBBBB, 0xBBBBBB]"/>
+	<mx:Image x="132" y="5" source="{speaker}" />
+	<mx:Image id="micIcon" x="174" y="5" click="toggleMute()" source="{micActive}" />
+	<mx:VSlider id="volSlider" x="128" y="30" height="106" minimum="0" maximum="100" value="70"  snapInterval="5" showDataTip="false"
 		allowTrackClick="true" liveDragging="true"  thumbDrag="changeVolume(event)" enabled="false" />
-	<mx:VSlider id="micSlider" x="176" y="42" height="84"  minimum="0" maximum="100" value="50" snapInterval="5" showDataTip="false"
+	<mx:VSlider id="micSlider" x="173" y="30" height="106"  minimum="0" maximum="100" value="50" snapInterval="5" showDataTip="false"
 		allowTrackClick="true" liveDragging="true"  thumbDrag="changeMicVolume(event)" enabled="false" />
 </mx:Canvas>
