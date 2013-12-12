@@ -1,486 +1,497 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas 
-	xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:s="library://ns.adobe.com/flex/spark"
-	creationComplete="init()"  >
+<mx:Canvas
+        xmlns:mx="http://www.adobe.com/2006/mxml"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        creationComplete="init()">
 
-	<mx:Script>
+    <mx:Script>
 		<![CDATA[
-			import mx.collections.ArrayCollection;
-			import mx.managers.PopUpManager;
-			import flash.external.ExternalInterface;
-		
-			public  var netConnection:NetConnection = null;
-			private var incomingNetStream:NetStream = null
-			private var outgoingNetStream:NetStream = null;
-			private var mic:Microphone 				= null;
-			private var isConnected:Boolean			= false;
-			private var muted:Boolean			    = false;
-			private var req:URLRequest 				= null;
-			private var conferenceFlag:Boolean 	= false
-			private var numberToCall:String = null;
+        import mx.collections.ArrayCollection;
+        import mx.managers.PopUpManager;
 
-			private var timer:Timer;
-			private var elapsed:uint;
-			private var lastTime:uint;
+        import flash.external.ExternalInterface;
 
-			private var strings:Object = {
-					en:{
-                        call:"To participate audio-conference", hangup:"To leave audio-conference",
-                        rts:"Signal request to speak", rts_withdraw: "Withdraw the request",
-                        operator_call:"Connect with an operator",
-                        mute:"Mute microphone", unmute: "Microphone loud"},
-					es:{
-                        call:"participar en audioconferencia", hangup:"abandonar la audioconferencia",
-                        rts:"realizar intervención",rts_withdraw:"finalizar intervención",
-                        operator_call:"conectarse con el operador",
-                        mute:"silenciar el micrófono", unmute: "subir el volumen del micrófono"},
-					de:{
-                        call:"An Audio-Konferenz teilnehmen", hangup:"Audio-Konferenz verlassen",
-                        rts:"Wortmeldung abgeben",rts_withdraw:"Wortmeldung zurücknehmen",
-                        operator_call:"Mit dem Operator verbinden",
-                        mute:"Mikrofon stumm schalten", unmute: "Mikrofon laut schalten"},
-					fr:{
-                        call:"participer à la conférence audio", hangup:"quitter la conférence audio ",
-                        rts:"laisser un message vocal",rts_withdraw:"Supprimer un message vocal ",
-                        operator_call:"connecter à l’opérateur",
-                        mute:"mettre le micro en muet", unmute: "activer le son du micro "},
-					it:{
-                        call:"Call", hangup:"Hangup",
-                        rts:"Request to speak", rts_withdraw:"Request to speak",
-                        operator_call:"Operator Call",
-                        mute:"Mute microphone", unmute: "Microphone loud"}
-			};
-			
-			[@Embed(source="assets/dtag_operator.png")]
-			public const callToOperator:Class;
-			
-			[@Embed(source="assets/dtag_wortmeldung.png")]
-			public const withdrawRequest2SpeakIcon:Class;
-			
-			[@Embed(source="assets/dtag_wortmeldung.png")]
-			public const request2SpeakIcon:Class;
+        public var netConnection:NetConnection = null;
+        private var incomingNetStream:NetStream = null
+        private var outgoingNetStream:NetStream = null;
+        private var mic:Microphone = null;
+        private var isConnected:Boolean = false;
+        private var muted:Boolean = false;
+        private var req:URLRequest = null;
+        private var conferenceFlag:Boolean = false
+        private var numberToCall:String = null;
 
-            [@Embed(source="assets/dtag_call.png")]
-            public const phone:Class;
+        private var timer:Timer;
+        private var elapsed:uint;
+        private var lastTime:uint;
 
-            [@Embed(source="assets/dtag_hangup.png")]
-            public const hangup:Class;
+        private var strings:Object = {
+            en: {
+                call: "To participate audio-conference", hangup: "To leave audio-conference",
+                rts: "Signal request to speak", rts_withdraw: "Withdraw the request",
+                operator_call: "Connect with an operator",
+                mute: "Mute microphone", unmute: "Microphone loud"},
+            es: {
+                call: "participar en audioconferencia", hangup: "abandonar la audioconferencia",
+                rts: "realizar intervención", rts_withdraw: "finalizar intervención",
+                operator_call: "conectarse con el operador",
+                mute: "silenciar el micrófono", unmute: "subir el volumen del micrófono"},
+            de: {
+                call: "An Audio-Konferenz teilnehmen", hangup: "Audio-Konferenz verlassen",
+                rts: "Wortmeldung abgeben", rts_withdraw: "Wortmeldung zurücknehmen",
+                operator_call: "Mit dem Operator verbinden",
+                mute: "Mikrofon stumm schalten", unmute: "Mikrofon laut schalten"},
+            fr: {
+                call: "participer à la conférence audio", hangup: "quitter la conférence audio ",
+                rts: "laisser un message vocal", rts_withdraw: "Supprimer un message vocal ",
+                operator_call: "connecter à l’opérateur",
+                mute: "mettre le micro en muet", unmute: "activer le son du micro "},
+            it: {
+                call: "Call", hangup: "Hangup",
+                rts: "Request to speak", rts_withdraw: "Request to speak",
+                operator_call: "Operator Call",
+                mute: "Mute microphone", unmute: "Microphone loud"}
+        };
 
-			[@Embed(source="assets/gray.png")]
-			public const gray:Class;
-		
-			[@Embed(source="assets/green.png")]
-			public const green:Class;
+        [@Embed(source = "assets/dtag_operator.png")]
+        public const callToOperator:Class;
 
-			[@Embed(source="assets/red.png")]
-			public const red:Class;
+        [@Embed(source = "assets/dtag_wortmeldung.png")]
+        public const withdrawRequest2SpeakIcon:Class;
 
-			[@Embed(source="assets/dtag_micro_on.png")]
-			public const micActive:Class;
+        [@Embed(source = "assets/dtag_wortmeldung.png")]
+        public const request2SpeakIcon:Class;
 
-			[@Embed(source="assets/dtag_micro_off.png")]
-			public const micMute:Class;
+        [@Embed(source = "assets/dtag_call.png")]
+        public const phone:Class;
 
-			[@Embed(source="assets/dtag_lautsprecher.png")]
-			public const speaker:Class;
-			
-			[@Embed(source="assets/conference_16x16.png")]
-			public const conference:Class;			
+        [@Embed(source = "assets/dtag_hangup.png")]
+        public const hangup:Class;
 
-			[@Embed(source="assets/history.png")]
-			public const history:Class;
+        [@Embed(source = "assets/gray.png")]
+        public const gray:Class;
 
-			[@Embed(source="assets/flag_red.png")]
-			public const redFlag:Class;
+        [@Embed(source = "assets/green.png")]
+        public const green:Class;
 
-			[@Embed(source="assets/mail_16x16.png")]
-			public const mail:Class;
+        [@Embed(source = "assets/red.png")]
+        public const red:Class;
 
-			private var incomingCallObj:Object;
-			private var dialedCallObj:Object;
-          	
-        private function log(message:String):void
-        {
-            trace (message);
-            if (ExternalInterface.available)
-            {
+        [@Embed(source = "assets/dtag_micro_on.png")]
+        public const micActive:Class;
+
+        [@Embed(source = "assets/dtag_micro_off.png")]
+        public const micMute:Class;
+
+        [@Embed(source = "assets/dtag_lautsprecher.png")]
+        public const speaker:Class;
+
+        [@Embed(source = "assets/conference_16x16.png")]
+        public const conference:Class;
+
+        [@Embed(source = "assets/history.png")]
+        public const history:Class;
+
+        [@Embed(source = "assets/flag_red.png")]
+        public const redFlag:Class;
+
+        [@Embed(source = "assets/mail_16x16.png")]
+        public const mail:Class;
+
+        private var incomingCallObj:Object;
+        private var dialedCallObj:Object;
+
+        private function log(message:String):void {
+            trace(message);
+            if (ExternalInterface.available) {
                 ExternalInterface.call('console.log', message);
             }
         }
 
-        private function getString(lang:String, id:String):String{
-        	var str:String = strings[lang][id];
-        	if(str == null){
-        		str = lang+":"+id;
-        	}
-        	return str;
+        private function getString(lang:String, id:String):String {
+            var str:String = strings[lang][id];
+            if (str == null) {
+                str = lang + ":" + id;
+            }
+            return str;
         }
-			private function init():void {
-			    log("init phone canvas");
 
-				initMicrophone();
-				if(parentApplication.removeRequest2SpeakMacro != null){
-					request2SpeakButton.visible= true;
-				}
-			
-				if(parentApplication.callOperatorMacro != null){
-					callOperatorButton.visible = true;
-				}
-				
-				dialButton.visible = !parentApplication.autodial;
-				var lang:String = parentApplication.lang;
-				dialButton.toolTip = getString(lang, "call");
-				toggleMuteButton.toolTip = getString(lang, "mute");
-				request2SpeakButton.toolTip = getString(lang, "rts");
-				callOperatorButton.toolTip = getString(lang, "operator_call");
-			}
-			
-			public function initMicrophone():void {
-				mic = getMicrophone();
-		
-				if(mic == null){
-					log("No available microphone");
-				} else {
-					mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
-					mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
+        private function init():void {
+            log("init phone canvas");
 
-					mic.codec = SoundCodec.SPEEX;
-					mic.setUseEchoSuppression(true);
-					mic.setLoopBack(false);
-					mic.setSilenceLevel(0,20000);
-					mic.framesPerPacket = 1;
-					mic.gain = 70;
-					mic.rate = 16;
+            initMicrophone();
+            if (parentApplication.removeRequest2SpeakMacro != null) {
+                request2SpeakButton.visible = true;
+            }
 
-				}
-			}	
+            if (parentApplication.callOperatorMacro != null) {
+                callOperatorButton.visible = true;
+            }
 
-			private function getMicrophone() :Microphone 
-			{
-				var mic:Microphone = Microphone.getMicrophone();
-				return mic;
-			}			
-			
-			private function micActivityHandler(event:ActivityEvent):void {}
-	
-			private function micStatusHandler(event:StatusEvent):void {		
-				switch(event.code) {
-		
-				case "Microphone.Muted":
-					break;
-				case "Microphone.Unmuted":
-					break;
-				default:
-					log("unknown micStatusHandler event: " + event);
-				}
-			}
-			
-			private function toggleMute():void {
-				if(isConnected) {
-					if(!muted) {
-						if(outgoingNetStream != null) {
-							outgoingNetStream.close();
-							outgoingNetStream = null;
-							micIcon.source = micMute;
-                            toggleMuteButton.toolTip = getString(parentApplication.lang, "unmute");
-                            micIcon.toolTip = getString(parentApplication.lang, "unmute");
-							toggleMuteButton.setStyle("icon",micActive);
-							muted = true;
-						}
-					}
-					else {
-						outgoingNetStream = new NetStream(getNetConnection());
-						outgoingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-						outgoingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
-						outgoingNetStream.attachAudio(mic);
-						outgoingNetStream.bufferTime = 0;
-						var custom_obj:Object = new Object();
-						custom_obj.onPlayStatus = playStatus;
-						outgoingNetStream.client = custom_obj;
-						micIcon.source = micActive;
-                        micIcon.toolTip = getString(parentApplication.lang, "mute");
-                        toggleMuteButton.toolTip = getString(parentApplication.lang, "mute");
-                        toggleMuteButton.setStyle("icon",micMute);
+            dialButton.visible = !parentApplication.autodial;
+            var lang:String = parentApplication.lang;
+            dialButton.toolTip = getString(lang, "call");
+            toggleMuteButton.toolTip = getString(lang, "mute");
+            request2SpeakButton.toolTip = getString(lang, "rts");
+            callOperatorButton.toolTip = getString(lang, "operator_call");
+        }
+
+        public function initMicrophone():void {
+            mic = getMicrophone();
+
+            if (mic == null) {
+                log("No available microphone");
+            } else {
+                mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
+                mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
+
+                mic.codec = SoundCodec.SPEEX;
+                mic.setUseEchoSuppression(true);
+                mic.setLoopBack(false);
+                mic.setSilenceLevel(0, 20000);
+                mic.framesPerPacket = 1;
+                mic.gain = 70;
+                mic.rate = 16;
+
+            }
+        }
+
+        private function getMicrophone():Microphone {
+            var mic:Microphone = Microphone.getMicrophone();
+            return mic;
+        }
+
+        private function micActivityHandler(event:ActivityEvent):void {
+        }
+
+        private function micStatusHandler(event:StatusEvent):void {
+            switch (event.code) {
+
+                case "Microphone.Muted":
+                    break;
+                case "Microphone.Unmuted":
+                    break;
+                default:
+                    log("unknown micStatusHandler event: " + event);
+            }
+        }
+
+        private function toggleMute():void {
+            if (isConnected) {
+                if (!muted) {
+                    if (outgoingNetStream != null) {
+                        outgoingNetStream.close();
+                        outgoingNetStream = null;
+                        micIcon.source = micMute;
+                        toggleMuteButton.toolTip = getString(parentApplication.lang, "unmute");
+                        micIcon.toolTip = getString(parentApplication.lang, "unmute");
+                        toggleMuteButton.setStyle("icon", micActive);
+                        muted = true;
+                    }
+                }
+                else {
+                    outgoingNetStream = new NetStream(getNetConnection());
+                    outgoingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+                    outgoingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+                    outgoingNetStream.attachAudio(mic);
+                    outgoingNetStream.bufferTime = 0;
+                    var custom_obj:Object = new Object();
+                    custom_obj.onPlayStatus = playStatus;
+                    outgoingNetStream.client = custom_obj;
+                    micIcon.source = micActive;
+                    micIcon.toolTip = getString(parentApplication.lang, "mute");
+                    toggleMuteButton.toolTip = getString(parentApplication.lang, "mute");
+                    toggleMuteButton.setStyle("icon", micMute);
 //						resetMuteButton();
-						muted = false;
+                    muted = false;
 //						if(parentApplication.unmuteMacro != null){
 //							parentApplication.sendAllDtmf(parentApplication.unmuteMacro);
 //						}
-					}
-				}
-			}
-			
-			private function toggleMuteDTMF():void{
-				if(parentApplication.muteMacro != null){
-					parentApplication.sendAllDtmf(parentApplication.muteMacro);
-				}
-			}
-			
-			private function resetMuteButton():void{
-				toggleMuteButton.setStyle("icon",micMute);
-                toggleMuteButton.toolTip = getString(parentApplication.lang, "mute");
-				toggleMuteButton.selected = false;
-			}
-			
-			private function unmute():void{
-				if(muted){
-					toggleMute();
-				}
-			}
-			
-			/**
-			 * Initiate dial or hang up
-			 */
-			private function toggleCall():void{
-				if(isConnected){
-					doHangUp();
-				}else{
-					doCall();
-				}
-			}
-			
-			private function getNetConnection():NetConnection {
-				return netConnection;
-			}
-			
-			private function setNetConnection(netConnection:NetConnection):void {
-				this.netConnection = netConnection;
-			}
-			
-			public function callConnected(netConnection:NetConnection, playName:String, publishName:String):void {
-				isConnected = true;
-				setNetConnection(netConnection);
-				incomingNetStream = new NetStream(netConnection);
-				incomingNetStream.bufferTime = 0;
-				incomingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-				incomingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-				incomingNetStream.bufferTime = 0.2;
-				incomingNetStream.play("play");
-				incomingNetStream.receiveAudio(true);
+                }
+            }
+        }
 
-				
-				outgoingNetStream = new NetStream(netConnection);
-				outgoingNetStream.bufferTime = 0;
-				outgoingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-				outgoingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
-				outgoingNetStream.attachAudio(mic);
-				outgoingNetStream.publish("publish", "live");
+        private function toggleMuteDTMF():void {
+            if (parentApplication.muteMacro != null) {
+                parentApplication.sendAllDtmf(parentApplication.muteMacro);
+            }
+        }
 
-				var custom_obj:Object = new Object();
-				custom_obj.onPlayStatus = playStatus;
-				incomingNetStream.client = custom_obj;
-				outgoingNetStream.client = custom_obj;
-				
-				volSlider.enabled 	 = true;
-				micSlider.enabled 	 = true;
-				toggleMuteButton.enabled = true;
-				muted = false;
-				request2SpeakButton.enabled = true;
+        private function resetMuteButton():void {
+            toggleMuteButton.setStyle("icon", micMute);
+            toggleMuteButton.toolTip = getString(parentApplication.lang, "mute");
+            toggleMuteButton.selected = false;
+        }
+
+        private function unmute():void {
+            if (muted) {
+                toggleMute();
+            }
+        }
+
+        /**
+         * Initiate dial or hang up
+         */
+        private function toggleCall():void {
+            if (isConnected) {
+                doHangUp();
+            } else {
+                doCall();
+            }
+        }
+
+        private function getNetConnection():NetConnection {
+            return netConnection;
+        }
+
+        private function setNetConnection(netConnection:NetConnection):void {
+            this.netConnection = netConnection;
+        }
+
+        public function callConnected(netConnection:NetConnection, playName:String, publishName:String):void {
+            isConnected = true;
+            setNetConnection(netConnection);
+            incomingNetStream = new NetStream(netConnection);
+            incomingNetStream.bufferTime = 0;
+            incomingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+            incomingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+            incomingNetStream.bufferTime = 0.2;
+            incomingNetStream.play("play");
+            incomingNetStream.receiveAudio(true);
+
+
+            outgoingNetStream = new NetStream(netConnection);
+            outgoingNetStream.bufferTime = 0;
+            outgoingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
+            outgoingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+            outgoingNetStream.attachAudio(mic);
+            outgoingNetStream.publish("publish", "live");
+
+            var custom_obj:Object = new Object();
+            custom_obj.onPlayStatus = playStatus;
+            incomingNetStream.client = custom_obj;
+            outgoingNetStream.client = custom_obj;
+
+            volSlider.enabled = true;
+            micSlider.enabled = true;
+            toggleMuteButton.enabled = true;
+            muted = false;
+            request2SpeakButton.enabled = true;
 // removeRequest2SpeakButton.enabled = true;
-				callOperatorButton.enabled = true;
+            callOperatorButton.enabled = true;
 
-				changeVolume(null);
-				toggleDialButton(false);
-			}
-			
-			private function toggleDialButton(dial:Boolean):void{
-				if(dial){
-					dialButton.setStyle("fillColors",["0x42AB1F", "0x42AB1F"]);
-                    dialButton.toolTip = getString(parentApplication.lang, "call");
-                    dialButton.setStyle("icon", phone);
+            changeVolume(null);
+            toggleDialButton(false);
+        }
 
-				}else{
-					dialButton.setStyle("fillColors",["0xDE2121", "0xDE2121"]);
-                    dialButton.toolTip = getString(parentApplication.lang, "hangup");
-                    dialButton.setStyle("icon", hangup);
-				}
-			}
-			
-			public function callDisconnected(event:CallDisconnectedEvent):void {
-				if(incomingNetStream != null) {
-					incomingNetStream.play(false); 
-				}
-				if(outgoingNetStream != null) {
-					outgoingNetStream.attachAudio(null);
-					outgoingNetStream.close();
-				}
-				
-				doHangUp();
-				isConnected 		 = false;
-				toggleDialButton(true);
-				
-				volSlider.enabled    = false;
-				micSlider.enabled    = false;
-				resetMuteButton();
-				muted = false;
-				toggleMuteButton.enabled = false;
-				resetRTSButton();
-				request2SpeakButton.enabled = false;
+        private function toggleDialButton(dial:Boolean):void {
+            if (dial) {
+                dialButton.setStyle("fillColors", ["0x42AB1F", "0x42AB1F"]);
+                dialButton.toolTip = getString(parentApplication.lang, "call");
+                dialButton.setStyle("icon", phone);
+
+            } else {
+                dialButton.setStyle("fillColors", ["0xDE2121", "0xDE2121"]);
+                dialButton.toolTip = getString(parentApplication.lang, "hangup");
+                dialButton.setStyle("icon", hangup);
+            }
+        }
+
+        public function callDisconnected(event:CallDisconnectedEvent):void {
+            if (incomingNetStream != null) {
+                incomingNetStream.play(false);
+            }
+            if (outgoingNetStream != null) {
+                outgoingNetStream.attachAudio(null);
+                outgoingNetStream.close();
+            }
+
+            doHangUp();
+            isConnected = false;
+            toggleDialButton(true);
+
+            volSlider.enabled = false;
+            micSlider.enabled = false;
+            resetMuteButton();
+            muted = false;
+            toggleMuteButton.enabled = false;
+            resetRTSButton();
+            request2SpeakButton.enabled = false;
 // removeRequest2SpeakButton.enabled = false;
-				callOperatorButton.enabled = false;
+            callOperatorButton.enabled = false;
 
-				micIcon.source = micActive;
-			}
-			
-			private function netStatus (evt:NetStatusEvent ):void {		 
+            micIcon.source = micActive;
+        }
 
-				switch(evt.info.code) {
-			
-					case "NetStream.Play.StreamNotFound":
-						break;
-			
-					case "NetStream.Play.Failed":
-						parentApplication.red5Manager.doStreamStatus("failed");
-						break;
-						
-					case "NetStream.Play.Start":	
-						parentApplication.red5Manager.doStreamStatus("start");	
-						break;
-						
-					case "NetStream.Play.Stop":			
-						parentApplication.red5Manager.doStreamStatus("stop");	
-						break;
-						
-					case "NetStream.Buffer.Full":
-						break;
-						
-					default:
-						
-				}			 
-			} 
-			
-			private function asyncErrorHandler(event:AsyncErrorEvent):void {
-	           log("AsyncErrorEvent: " + event);
-	        }
-	        
-	        private function playStatus(event:Object):void {}
-			
+        private function netStatus(evt:NetStatusEvent):void {
 
-			private function doCall():void {
-				if(numberToCall != null){
-					doCall2(numberToCall);
-				}
-			}
+            switch (evt.info.code) {
 
-			public function doCall2(dialNum:String):void {
-				parentApplication.red5Manager.doCall(dialNum);
-				
-				toggleDialButton(true);
-				log("Calling......");
-				dialedCallObj 		= new Object();
-				dialedCallObj.data  = dialNum;
-				dialedCallObj.label = dialNum;
-				dialedCallObj.time  = new Date().toString();	
-			}
-			private function doHangUp():void {
-				parentApplication.red5Manager.doHangUp();
-				
-				isConnected 		 = false;
-				toggleDialButton(true);
-				volSlider.enabled    = false;
-				micSlider.enabled    = false;
-				micIcon.source = micActive;
-			}
-			
-			
-			private function doAccept():void {
-				parentApplication.red5Manager.doAccept();
-				toggleDialButton(false);
-			}
-			
-			public function doClose1():void {
-				parentApplication.red5Manager.doClose1();
-					
-			}
-			public function doCallChar(chr:String):void {
-				parentApplication.sendDTMF(chr);
-			}
-			
-			public function setNumberToCall(number:String):void{
-				numberToCall = number;
-			}
-			
-			private function changeVolume(event:Event):void {
-				var st:SoundTransform = incomingNetStream.soundTransform;
-				
-				st.volume = (volSlider.value) * .01;
-				incomingNetStream.soundTransform = st;		
-			}
-			
-			private function changeMicVolume(event:Event):void {
-				mic.gain = (micSlider.value)
-			}
-			
-			private function doConference():void {
-			
-				conferenceFlag = true;
-				
-				if (isConnected)
-					parentApplication.red5Manager.addToConf();
-				else
-					parentApplication.red5Manager.joinConf();			
-			
-			}
+                case "NetStream.Play.StreamNotFound":
+                    break;
 
-			private function toggleRTS():void{
-				if(!request2SpeakButton.selected){
-					request2SpeakButton.setStyle("icon", request2SpeakIcon);
-                    request2SpeakButton.toolTip = getString(parentApplication.lang, "rts");
-					withdrawRequest2Speak();
-				}else{
-					request2SpeakButton.setStyle("icon", withdrawRequest2SpeakIcon);
-                    request2SpeakButton.toolTip = getString(parentApplication.lang, "rts_withdraw");
-					request2Speak();
-				}
-			}
-			
-			private function resetRTSButton():void{
-				request2SpeakButton.setStyle("icon", request2SpeakIcon);
+                case "NetStream.Play.Failed":
+                    parentApplication.red5Manager.doStreamStatus("failed");
+                    break;
+
+                case "NetStream.Play.Start":
+                    parentApplication.red5Manager.doStreamStatus("start");
+                    break;
+
+                case "NetStream.Play.Stop":
+                    parentApplication.red5Manager.doStreamStatus("stop");
+                    break;
+
+                case "NetStream.Buffer.Full":
+                    break;
+
+                default:
+
+            }
+        }
+
+        private function asyncErrorHandler(event:AsyncErrorEvent):void {
+            log("AsyncErrorEvent: " + event);
+        }
+
+        private function playStatus(event:Object):void {
+        }
+
+
+        private function doCall():void {
+            if (numberToCall != null) {
+                doCall2(numberToCall);
+            }
+        }
+
+        public function doCall2(dialNum:String):void {
+            parentApplication.red5Manager.doCall(dialNum);
+
+            toggleDialButton(true);
+            log("Calling......");
+            dialedCallObj = new Object();
+            dialedCallObj.data = dialNum;
+            dialedCallObj.label = dialNum;
+            dialedCallObj.time = new Date().toString();
+        }
+
+        private function doHangUp():void {
+            parentApplication.red5Manager.doHangUp();
+
+            isConnected = false;
+            toggleDialButton(true);
+            volSlider.enabled = false;
+            micSlider.enabled = false;
+            micIcon.source = micActive;
+        }
+
+
+        private function doAccept():void {
+            parentApplication.red5Manager.doAccept();
+            toggleDialButton(false);
+        }
+
+        public function doClose1():void {
+            parentApplication.red5Manager.doClose1();
+
+        }
+
+        public function doCallChar(chr:String):void {
+            parentApplication.sendDTMF(chr);
+        }
+
+        public function setNumberToCall(number:String):void {
+            numberToCall = number;
+        }
+
+        private function changeVolume(event:Event):void {
+            var st:SoundTransform = incomingNetStream.soundTransform;
+
+            st.volume = (volSlider.value) * .01;
+            incomingNetStream.soundTransform = st;
+        }
+
+        private function changeMicVolume(event:Event):void {
+            mic.gain = (micSlider.value)
+        }
+
+        private function doConference():void {
+
+            conferenceFlag = true;
+
+            if (isConnected)
+                parentApplication.red5Manager.addToConf();
+            else
+                parentApplication.red5Manager.joinConf();
+
+        }
+
+        private function toggleRTS():void {
+            if (!request2SpeakButton.selected) {
+                request2SpeakButton.setStyle("icon", request2SpeakIcon);
                 request2SpeakButton.toolTip = getString(parentApplication.lang, "rts");
-				request2SpeakButton.selected = false;
-			}
-			
-			private function request2Speak():void{
-				if(parentApplication.request2SpeakMacro != null){
-					parentApplication.sendAllDtmf(parentApplication.request2SpeakMacro);
-				}
-			}
-			private function withdrawRequest2Speak():void{
-				if(parentApplication.removeRequest2SpeakMacro != null){
-					parentApplication.sendAllDtmf(parentApplication.removeRequest2SpeakMacro);
-				}
-			}
-			
-			private function callOperator():void{
-				if(parentApplication.callOperatorMacro != null){
-					unmute();
-					parentApplication.sendAllDtmf(parentApplication.callOperatorMacro);
-				}
-			}
-			
-			public function connectedToServer():void{
-				dialButton.enabled = true;
-			}
-			
-			public function disconnectedFromServer():void{
-				dialButton.enabled = false;
-			}
-		]]>
+                withdrawRequest2Speak();
+            } else {
+                request2SpeakButton.setStyle("icon", withdrawRequest2SpeakIcon);
+                request2SpeakButton.toolTip = getString(parentApplication.lang, "rts_withdraw");
+                request2Speak();
+            }
+        }
+
+        private function resetRTSButton():void {
+            request2SpeakButton.setStyle("icon", request2SpeakIcon);
+            request2SpeakButton.toolTip = getString(parentApplication.lang, "rts");
+            request2SpeakButton.selected = false;
+        }
+
+        private function request2Speak():void {
+            if (parentApplication.request2SpeakMacro != null) {
+                parentApplication.sendAllDtmf(parentApplication.request2SpeakMacro);
+            }
+        }
+
+        private function withdrawRequest2Speak():void {
+            if (parentApplication.removeRequest2SpeakMacro != null) {
+                parentApplication.sendAllDtmf(parentApplication.removeRequest2SpeakMacro);
+            }
+        }
+
+        private function callOperator():void {
+            if (parentApplication.callOperatorMacro != null) {
+                unmute();
+                parentApplication.sendAllDtmf(parentApplication.callOperatorMacro);
+            }
+        }
+
+        public function connectedToServer():void {
+            dialButton.enabled = true;
+        }
+
+        public function disconnectedFromServer():void {
+            dialButton.enabled = false;
+        }
+        ]]>
 	</mx:Script>
-	
-	<mx:Button x="10" y="3" width="90" height="30" icon="{phone}" cornerRadius="0" fillAlphas="[1.0, 1.0]" fillColors="[0x42AB1F, 0x42AB1F]" click="toggleCall()" 
-		color="#FFFFFF" id="dialButton" themeColor="#42AB1F" enabled="false" visible="false"/>
-	<mx:Button x="10" y="36" width="90" height="30" toggle="false" icon="{micMute}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
-		 enabled="false" fillColors="[0xBBBBBB, 0xBBBBBB]" borderColor="0xAAAAAA"/>
-	<mx:Button x="10" y="69" width="90" height="30" toggle="true" icon="{request2SpeakIcon}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 
-		id="request2SpeakButton"  enabled="false" visible="true" fillColors="[0xBBBBBB, 0xBBBBBB]"/>
-	<mx:Button x="10" y="102" width="90" height="30" icon="{callToOperator}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="callOperator()" 
-		color="#FFFFFF" id="callOperatorButton"  enabled="false" visible="true" fillColors="[0xBBBBBB, 0xBBBBBB]"/>
-	<mx:Image x="132" y="5" source="{speaker}" />
-	<mx:Image id="micIcon" x="174" y="5" click="toggleMute()" source="{micActive}" />
-	<mx:VSlider id="volSlider" x="128" y="30" height="106" minimum="0" maximum="100" value="70"  snapInterval="5" showDataTip="false"
-		allowTrackClick="true" liveDragging="true"  thumbDrag="changeVolume(event)" enabled="false" />
-	<mx:VSlider id="micSlider" x="173" y="30" height="106"  minimum="0" maximum="100" value="50" snapInterval="5" showDataTip="false"
-		allowTrackClick="true" liveDragging="true"  thumbDrag="changeMicVolume(event)" enabled="false" />
+
+    <mx:Button x="10" y="3" width="90" height="30" icon="{phone}" cornerRadius="0" fillAlphas="[1.0, 1.0]"
+               fillColors="[0x42AB1F, 0x42AB1F]" click="toggleCall()"
+               color="#FFFFFF" id="dialButton" themeColor="#42AB1F" enabled="false" visible="false"/>
+    <mx:Button x="10" y="36" width="90" height="30" toggle="false" icon="{micMute}" cornerRadius="0"
+               fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
+               enabled="false" fillColors="[0xBBBBBB, 0xBBBBBB]" borderColor="0xAAAAAA"/>
+    <mx:Button x="10" y="69" width="90" height="30" toggle="true" icon="{request2SpeakIcon}" cornerRadius="0"
+               fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF"
+               id="request2SpeakButton" enabled="false" visible="true" fillColors="[0xBBBBBB, 0xBBBBBB]"/>
+    <mx:Button x="10" y="102" width="90" height="30" icon="{callToOperator}" cornerRadius="0" fillAlphas="[1.0, 1.0]"
+               click="callOperator()"
+               color="#FFFFFF" id="callOperatorButton" enabled="false" visible="true"
+               fillColors="[0xBBBBBB, 0xBBBBBB]"/>
+    <mx:Image x="132" y="5" source="{speaker}"/>
+    <mx:Image id="micIcon" x="174" y="5" click="toggleMute()" source="{micActive}"/>
+    <mx:VSlider id="volSlider" x="128" y="30" height="106" minimum="0" maximum="100" value="70" snapInterval="5"
+                showDataTip="false"
+                allowTrackClick="true" liveDragging="true" thumbDrag="changeVolume(event)" enabled="false"/>
+    <mx:VSlider id="micSlider" x="173" y="30" height="106" minimum="0" maximum="100" value="50" snapInterval="5"
+                showDataTip="false"
+                allowTrackClick="true" liveDragging="true" thumbDrag="changeMicVolume(event)" enabled="false"/>
 </mx:Canvas>

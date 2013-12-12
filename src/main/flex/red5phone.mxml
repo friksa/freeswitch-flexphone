@@ -1,248 +1,246 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" creationComplete="init()" 
-	preinitialize="presetup()"
-	width="220" height="140"
-	xmlns:local="*" alpha="1.0" backgroundGradientAlphas="[1.0, 1.0]" backgroundGradientColors="[#DEDEDE, #DEDEDE]" borderStyle="solid" cornerRadius="10">
-	   
-	<mx:Script>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" creationComplete="init()"
+                preinitialize="presetup()"
+                width="220" height="140"
+                xmlns:local="*" alpha="1.0" backgroundGradientAlphas="[1.0, 1.0]"
+                backgroundGradientColors="[#DEDEDE, #DEDEDE]" borderStyle="solid" cornerRadius="10">
+
+    <mx:Script>
 		<![CDATA[
-			
-		    import flash.utils.*;
-			import flash.external.*;
-			import flash.system.*;
-			import mx.core.FlexGlobals;
-			import Red5MessageEvent;
-			private var configXML:XML;
-			public var red5Manager:Red5Manager = null;
-			private var isDTMFAllowed:Boolean = true;
-			private var dtmf:String = "";
-			private var dtmfDelay:int = 500;
-			private var number:String = "";
-			public var request2SpeakMacro:String = null;
-			public var removeRequest2SpeakMacro:String = null;
-			public var callOperatorMacro:String = null;
-			public var muteMacro:String = null;
-			public var unmuteMacro:String = null;
-			public var autodial:Boolean = false; 
-			public var lang:String = "en";
-			
+        import flash.utils.*;
+        import flash.external.*;
+        import flash.system.*;
 
-			public function presetup():void
-			{
-				log("callerNumber: "+FlexGlobals.topLevelApplication.parameters.callerNumber);
-				dtmf = FlexGlobals.topLevelApplication.parameters.dtmf;
-				log("dtmf: "+dtmf);
-				dtmfDelay = parseInt(FlexGlobals.topLevelApplication.parameters.dtmfDelay);
-				if(isNaN(dtmfDelay)){
-					dtmfDelay = 500;
-				}
-				log("dtmfDelay: "+dtmfDelay);
-				autodial = FlexGlobals.topLevelApplication.parameters.autodial == "true";
-				log("autodial: "+autodial);
-				request2SpeakMacro = FlexGlobals.topLevelApplication.parameters.request2SpeakMacro;
-				log('request2SpeakMacro: '+request2SpeakMacro);
-				removeRequest2SpeakMacro = FlexGlobals.topLevelApplication.parameters.removeRequest2SpeakMacro;
-				log('removeRequest2SpeakMacro: '+removeRequest2SpeakMacro);
-				callOperatorMacro = FlexGlobals.topLevelApplication.parameters.callOperatorMacro;
-				log('callOperatorMacro: '+callOperatorMacro);
-				muteMacro = FlexGlobals.topLevelApplication.parameters.muteMacro;
-				log('muteMacro: '+muteMacro);
-				unmuteMacro = FlexGlobals.topLevelApplication.parameters.unmuteMacro;
-				log('unmuteMacro: '+unmuteMacro);
-				lang = FlexGlobals.topLevelApplication.parameters.lang;
-				if(lang == null){
-					lang = Capabilities.language;
-				}
-				if(lang != "en" && lang != "de" && lang != "fr" && lang != "es" && lang != "it"){
-					lang = "en";
-				}
-				log('lang: '+lang);
-			}
-						
-			public function sendDTMF(char:String):Boolean{
-				if(isDTMFAllowed){
-					red5Manager.doCallChar(char);
-					return true;
-				}
-				return false;
-			}
-			
-            private function log(message:String):void
-            {
-                trace (message);
-                if (ExternalInterface.available)
-                {
-                    ExternalInterface.call('console.log', message);
+        import mx.core.FlexGlobals;
+        import Red5MessageEvent;
+
+        private var configXML:XML;
+        public var red5Manager:Red5Manager = null;
+        private var isDTMFAllowed:Boolean = true;
+        private var dtmf:String = "";
+        private var dtmfDelay:int = 500;
+        private var number:String = "";
+        public var request2SpeakMacro:String = null;
+        public var removeRequest2SpeakMacro:String = null;
+        public var callOperatorMacro:String = null;
+        public var muteMacro:String = null;
+        public var unmuteMacro:String = null;
+        public var autodial:Boolean = false;
+        public var lang:String = "en";
+
+
+        public function presetup():void {
+            log("callerNumber: " + FlexGlobals.topLevelApplication.parameters.callerNumber);
+            dtmf = FlexGlobals.topLevelApplication.parameters.dtmf;
+            log("dtmf: " + dtmf);
+            dtmfDelay = parseInt(FlexGlobals.topLevelApplication.parameters.dtmfDelay);
+            if (isNaN(dtmfDelay)) {
+                dtmfDelay = 500;
+            }
+            log("dtmfDelay: " + dtmfDelay);
+            autodial = FlexGlobals.topLevelApplication.parameters.autodial == "true";
+            log("autodial: " + autodial);
+            request2SpeakMacro = FlexGlobals.topLevelApplication.parameters.request2SpeakMacro;
+            log('request2SpeakMacro: ' + request2SpeakMacro);
+            removeRequest2SpeakMacro = FlexGlobals.topLevelApplication.parameters.removeRequest2SpeakMacro;
+            log('removeRequest2SpeakMacro: ' + removeRequest2SpeakMacro);
+            callOperatorMacro = FlexGlobals.topLevelApplication.parameters.callOperatorMacro;
+            log('callOperatorMacro: ' + callOperatorMacro);
+            muteMacro = FlexGlobals.topLevelApplication.parameters.muteMacro;
+            log('muteMacro: ' + muteMacro);
+            unmuteMacro = FlexGlobals.topLevelApplication.parameters.unmuteMacro;
+            log('unmuteMacro: ' + unmuteMacro);
+            lang = FlexGlobals.topLevelApplication.parameters.lang;
+            if (lang == null) {
+                lang = Capabilities.language;
+            }
+            if (lang != "en" && lang != "de" && lang != "fr" && lang != "es" && lang != "it") {
+                lang = "en";
+            }
+            log('lang: ' + lang);
+        }
+
+        public function sendDTMF(char:String):Boolean {
+            if (isDTMFAllowed) {
+                red5Manager.doCallChar(char);
+                return true;
+            }
+            return false;
+        }
+
+        private function log(message:String):void {
+            trace(message);
+            if (ExternalInterface.available) {
+                ExternalInterface.call('console.log', message);
+            }
+        }
+
+        private function init():void {
+            log("Init " + Capabilities.playerType + " (" + Capabilities.version + ")" + " " + Capabilities.os);
+            this.addEventListener(KeyboardEvent.KEY_DOWN, keyHandler);
+            red5Manager = new Red5Manager();
+            red5Manager.addEventListener(ClientConnectedEvent.TYPE, clientConnectedEvent);
+            red5Manager.addEventListener(ClientDisconnectedEvent.TYPE, clientDisconnectedEvent);
+            red5Manager.addEventListener(ClientConnectionFailedEvent.TYPE, clientConnectionFailedEvent);
+            red5Manager.addEventListener(CallConnectedEvent.CONNECTED, callConnectedEvent);
+            red5Manager.addEventListener(CallDisconnectedEvent.DISCONNECTED, callDisconnectedEvent);
+            number = FlexGlobals.topLevelApplication.parameters.number;
+            log("number: " + number);
+            red5Manager.callerNumber = FlexGlobals.topLevelApplication.parameters.callerNumber;
+            log("Initialized");
+            var loader:URLLoader = new URLLoader();
+            var request:URLRequest = new URLRequest(FlexGlobals.topLevelApplication.parameters.configUrl);//new URLRequest("config.xml");
+
+            loader.addEventListener(Event.COMPLETE, onComplete);
+            loader.load(request);
+            ExternalInterface.addCallback("dial", function (destination:String):void {
+                log("Dial " + destination);
+                phoneCanvas.doCall2(destination);
+            });
+        }
+
+        private function onComplete(event:Event):void {
+            try {
+                phoneCanvas.setFocus();
+                configXML = new XML(event.target.data);
+                log("config.xml \n" + configXML);
+                var urls:Vector.<Array> = new Vector.<Array>();
+                for each (var url:XML in configXML.connectUrl) {
+                    //log(url.toString());
+                    urls.push([url.@proxyType, url.toString()]);
                 }
+                if (urls.length > 0) {
+                    log("Connecting...");
+                    red5Manager.connectRed5(urls);
+                } else {
+                    log("Not connected");
+                }
+            } catch (error:Error) {
+                log(error.toString());
+                log(error.getStackTrace());
             }
+        }
 
-			private function init():void {
-			    log("Init "+Capabilities.playerType + " (" + Capabilities.version + ")"+ " "+Capabilities.os);
-                this.addEventListener(KeyboardEvent.KEY_DOWN, keyHandler);
-				red5Manager = new Red5Manager();
-				red5Manager.addEventListener(ClientConnectedEvent.TYPE, clientConnectedEvent);
-				red5Manager.addEventListener(ClientDisconnectedEvent.TYPE, clientDisconnectedEvent);
-				red5Manager.addEventListener(ClientConnectionFailedEvent.TYPE, clientConnectionFailedEvent);
-				red5Manager.addEventListener(CallConnectedEvent.CONNECTED, callConnectedEvent);
-				red5Manager.addEventListener(CallDisconnectedEvent.DISCONNECTED, callDisconnectedEvent);
-				number = FlexGlobals.topLevelApplication.parameters.number;
-				log("number: "+number);
-				red5Manager.callerNumber = FlexGlobals.topLevelApplication.parameters.callerNumber;
-                log("Initialized");
-				var loader:URLLoader = new URLLoader();
-			    var request:URLRequest = new URLRequest(FlexGlobals.topLevelApplication.parameters.configUrl);//new URLRequest("config.xml");
-
-                loader.addEventListener(Event.COMPLETE, onComplete);
-				loader.load(request);
-			    ExternalInterface.addCallback("dial", function(destination:String):void {
-			        log("Dial "+destination);
-				    phoneCanvas.doCall2(destination);
-				});
-			}
-
-			private function onComplete(event:Event):void {
-				try{
-	                phoneCanvas.setFocus();
-					configXML 	= new XML(event.target.data);
-				    log("config.xml \n"+configXML);
-	                var urls:Vector.<Array> = new Vector.<Array>();
-	                for each (var url:XML in configXML.connectUrl){
-	                    //log(url.toString());
-	                    urls.push([url.@proxyType, url.toString()]);
-	                }
-					if(urls.length > 0){
-	                    log("Connecting...");
-	                    red5Manager.connectRed5(urls);
-					}else{
-	                    log("Not connected");
-					}
-	            }catch(error:Error){
-	                log(error.toString()) ;
-	                log(error.getStackTrace());
-	            }
-			}
-
-			private function clientConnectedEvent(event:ClientConnectedEvent):void{
-			    log("Connected");
-			    phoneCanvas.connectedToServer();
-			    if(autodial && number != null && number.length > 0){
-			    	log("Calling "+number);
-			    	phoneCanvas.doCall2(number);
-			    }if(!autodial && number != null && number.length > 0){
-			    	phoneCanvas.setNumberToCall(number);
-			    }
-			}
-
-            private function clientDisconnectedEvent(event:ClientDisconnectedEvent):void{
-                log("Disconnected");
-			    phoneCanvas.disconnectedFromServer();
-           }
-
-            private function clientConnectionFailedEvent(event:ClientConnectionFailedEvent):void{
-                log("Connection failed");
-			    phoneCanvas.disconnectedFromServer();
+        private function clientConnectedEvent(event:ClientConnectedEvent):void {
+            log("Connected");
+            phoneCanvas.connectedToServer();
+            if (autodial && number != null && number.length > 0) {
+                log("Calling " + number);
+                phoneCanvas.doCall2(number);
             }
+            if (!autodial && number != null && number.length > 0) {
+                phoneCanvas.setNumberToCall(number);
+            }
+        }
 
-			private function callConnectedEvent(event:CallConnectedEvent):void {
-				log("CallConnectedEvent " + event.publishName + " " + event.playName);
-				phoneCanvas.callConnected(red5Manager.netConnection, event.playName, event.publishName);
-				if(dtmf != null && dtmf.length > 0){
-					/*
-					 * Es duerfen keine DTMF von Benutzer akzeptiert werden bis die
-					 * per Parameter mitgegebene DTMF abegesendet sind.
-					 */
-					isDTMFAllowed = false;
-				    var timer:Timer = new Timer(dtmfDelay, 1);
-				    timer.addEventListener(TimerEvent.TIMER_COMPLETE, dtmfTimerCompleteHandler);
-				    timer.start();
-				}
-			}
+        private function clientDisconnectedEvent(event:ClientDisconnectedEvent):void {
+            log("Disconnected");
+            phoneCanvas.disconnectedFromServer();
+        }
 
-			private function dtmfTimerCompleteHandler(event:TimerEvent):void{
-				isDTMFAllowed = true;
-				if(dtmf != null && dtmf.length > 0){
-					sendAllDtmf(dtmf);
-    			}
-			}
+        private function clientConnectionFailedEvent(event:ClientConnectionFailedEvent):void {
+            log("Connection failed");
+            phoneCanvas.disconnectedFromServer();
+        }
 
-			public function sendAllDtmf(digits:String):void{
-				log("Sending DFMT: "+digits);
-				var timeout:int = 0; 
-				var y:int = 0;
-				/*
-				 * Kleine Pause zwischen den DTMFs anlegen, sonst werden gleiche Ziffern auf der 
-				 * Empfaengerseite zusammen zu einer 'geklebt'
-				 */
-				for(var i:int = 0; i < digits.length; i++){
-					setTimeout(function():void{
-						phoneCanvas.doCallChar(digits.charAt(y++));
-					}, timeout);
-					timeout = timeout + 500;
-				}
-			}
-			
-			private function callDisconnectedEvent(event:CallDisconnectedEvent):void {
-				log("CallDisconnectedEvent " + event.message);
-				phoneCanvas.callDisconnected(event);
-				/*
-				 * Wenn eine Zielrufnummer als Parameter mitgegeben wurde, dann diese wieder voreinstellen
-				 */
-				if(number != null && number.length > 0){
-					phoneCanvas.setNumberToCall(number);
-				}
-			}
-			
-			private function keyHandler(event:KeyboardEvent):void {
-				switch(event.charCode) {
-					case 48:
-						phoneCanvas.doCallChar("0");
-						break;
-					case 49:
-						phoneCanvas.doCallChar("1");
-						break;
-					case 50:
-						phoneCanvas.doCallChar("2");
-						break;
-					case 51:
-						phoneCanvas.doCallChar("3");
-						break;
-					case 52:
-						phoneCanvas.doCallChar("4");
-						break;
-					case 53:
-						phoneCanvas.doCallChar("5");
-						break;
-					case 54:
-						phoneCanvas.doCallChar("6");
-						break;
-					case 55:
-						phoneCanvas.doCallChar("7");
-						break;
-					case 56:
-						phoneCanvas.doCallChar("8");
-						break;
-					case 57:
-						phoneCanvas.doCallChar("9");
-						break;
-					case 8:
+        private function callConnectedEvent(event:CallConnectedEvent):void {
+            log("CallConnectedEvent " + event.publishName + " " + event.playName);
+            phoneCanvas.callConnected(red5Manager.netConnection, event.playName, event.publishName);
+            if (dtmf != null && dtmf.length > 0) {
+                /*
+                 * Es duerfen keine DTMF von Benutzer akzeptiert werden bis die
+                 * per Parameter mitgegebene DTMF abegesendet sind.
+                 */
+                isDTMFAllowed = false;
+                var timer:Timer = new Timer(dtmfDelay, 1);
+                timer.addEventListener(TimerEvent.TIMER_COMPLETE, dtmfTimerCompleteHandler);
+                timer.start();
+            }
+        }
+
+        private function dtmfTimerCompleteHandler(event:TimerEvent):void {
+            isDTMFAllowed = true;
+            if (dtmf != null && dtmf.length > 0) {
+                sendAllDtmf(dtmf);
+            }
+        }
+
+        public function sendAllDtmf(digits:String):void {
+            log("Sending DFMT: " + digits);
+            var timeout:int = 0;
+            var y:int = 0;
+            /*
+             * Kleine Pause zwischen den DTMFs anlegen, sonst werden gleiche Ziffern auf der
+             * Empfaengerseite zusammen zu einer 'geklebt'
+             */
+            for (var i:int = 0; i < digits.length; i++) {
+                setTimeout(function ():void {
+                    phoneCanvas.doCallChar(digits.charAt(y++));
+                }, timeout);
+                timeout = timeout + 500;
+            }
+        }
+
+        private function callDisconnectedEvent(event:CallDisconnectedEvent):void {
+            log("CallDisconnectedEvent " + event.message);
+            phoneCanvas.callDisconnected(event);
+            /*
+             * Wenn eine Zielrufnummer als Parameter mitgegeben wurde, dann diese wieder voreinstellen
+             */
+            if (number != null && number.length > 0) {
+                phoneCanvas.setNumberToCall(number);
+            }
+        }
+
+        private function keyHandler(event:KeyboardEvent):void {
+            switch (event.charCode) {
+                case 48:
+                    phoneCanvas.doCallChar("0");
+                    break;
+                case 49:
+                    phoneCanvas.doCallChar("1");
+                    break;
+                case 50:
+                    phoneCanvas.doCallChar("2");
+                    break;
+                case 51:
+                    phoneCanvas.doCallChar("3");
+                    break;
+                case 52:
+                    phoneCanvas.doCallChar("4");
+                    break;
+                case 53:
+                    phoneCanvas.doCallChar("5");
+                    break;
+                case 54:
+                    phoneCanvas.doCallChar("6");
+                    break;
+                case 55:
+                    phoneCanvas.doCallChar("7");
+                    break;
+                case 56:
+                    phoneCanvas.doCallChar("8");
+                    break;
+                case 57:
+                    phoneCanvas.doCallChar("9");
+                    break;
+                case 8:
 //						phoneCanvas.removeChr();
-						break;
-					case 127:
-						
-						break;
-					case 35:
-						phoneCanvas.doCallChar("#");
-						break;
-					case 42:
-						phoneCanvas.doCallChar("*");
-						break;
-					default:
-				}
-			}
-			
-	        
-		]]>
+                    break;
+                case 127:
+
+                    break;
+                case 35:
+                    phoneCanvas.doCallChar("#");
+                    break;
+                case 42:
+                    phoneCanvas.doCallChar("*");
+                    break;
+                default:
+            }
+        }
+        ]]>
 	</mx:Script>
-	<local:PhoneCanvas id="phoneCanvas" x="0" y="0" width="100%" height="100%" visible="true"/>
-	
+    <local:PhoneCanvas id="phoneCanvas" x="0" y="0" width="100%" height="100%" visible="true"/>
+
 </mx:Application>
