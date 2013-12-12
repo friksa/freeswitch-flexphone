@@ -25,11 +25,31 @@
 			private var lastTime:uint;
 
 			private var strings:Object = {
-					en:{call:"Call", rts:"Request to speak", operator_call:"Operator call", mute:"Mute on/off"},
-					es:{call:"llamar", rts:"Eliminar petici\u00f3n de palabra", operator_call:"Operator call", mute:"Silenciado activado/desactivado"},
-					de:{call:"Anrufen", rts:"Wortmeldung", operator_call:"Mit dem Operator verbinden", mute:"Stummschalten"},
-					fr:{call:"Appeler", rts:"Supprimer le message vocal", operator_call:"Appel d'op\u00e9rateur", mute:"Mode muet marche/arr\u00eat"},
-					it:{call:"Chiamare", rts:"Parola concessa", operator_call:"Operator Call", mute:"Mute on/off"}
+					en:{
+                        call:"To participate audio-conference", hangup:"To leave audio-conference",
+                        rts:"Signal request to speak", rts_withdraw: "Withdraw the request",
+                        operator_call:"Connect with an operator",
+                        mute:"Mute microphone", unmute: "Microphone loud"},
+					es:{
+                        call:"participar en audioconferencia", hangup:"abandonar la audioconferencia",
+                        rts:"realizar intervención",rts_withdraw:"finalizar intervención",
+                        operator_call:"conectarse con el operador",
+                        mute:"silenciar el micrófono", unmute: "subir el volumen del micrófono"},
+					de:{
+                        call:"An Audio-Konferenz teilnehmen", hangup:"Audio-Konferenz verlassen",
+                        rts:"Wortmeldung abgeben",rts_withdraw:"Wortmeldung zurücknehmen",
+                        operator_call:"Mit dem Operator verbinden",
+                        mute:"Mikrofon stumm schalten", unmute: "Mikrofon laut schalten"},
+					fr:{
+                        call:"participer à la conférence audio", hangup:"quitter la conférence audio ",
+                        rts:"laisser un message vocal",rts_withdraw:"Supprimer un message vocal ",
+                        operator_call:"connecter à l’opérateur",
+                        mute:"mettre le micro en muet", unmute: "activer le son du micro "},
+					it:{
+                        call:"Call", hangup:"Hangup",
+                        rts:"Request to speak", rts_withdraw:"Request to speak",
+                        operator_call:"Operator Call",
+                        mute:"Mute microphone", unmute: "Microphone loud"}
 			};
 			
 			[@Embed(source="assets/dtag_operator.png")]
@@ -40,10 +60,13 @@
 			
 			[@Embed(source="assets/dtag_wortmeldung.png")]
 			public const request2SpeakIcon:Class;
-		
-			[@Embed(source="assets/dtag_call.png")]
-			public const phone:Class;
-		
+
+            [@Embed(source="assets/dtag_call.png")]
+            public const phone:Class;
+
+            [@Embed(source="assets/dtag_hangup.png")]
+            public const hangup:Class;
+
 			[@Embed(source="assets/gray.png")]
 			public const gray:Class;
 		
@@ -160,7 +183,9 @@
 							outgoingNetStream.close();
 							outgoingNetStream = null;
 							micIcon.source = micMute;
-//							toggleMuteButton.setStyle("icon",micActive);
+                            toggleMuteButton.toolTip = getString(parentApplication.lang, "unmute");
+                            micIcon.toolTip = getString(parentApplication.lang, "unmute");
+							toggleMuteButton.setStyle("icon",micActive);
 							muted = true;
 						}
 					}
@@ -174,6 +199,9 @@
 						custom_obj.onPlayStatus = playStatus;
 						outgoingNetStream.client = custom_obj;
 						micIcon.source = micActive;
+                        micIcon.toolTip = getString(parentApplication.lang, "mute");
+                        toggleMuteButton.toolTip = getString(parentApplication.lang, "mute");
+                        toggleMuteButton.setStyle("icon",micMute);
 //						resetMuteButton();
 						muted = false;
 //						if(parentApplication.unmuteMacro != null){
@@ -191,6 +219,7 @@
 			
 			private function resetMuteButton():void{
 				toggleMuteButton.setStyle("icon",micMute);
+                toggleMuteButton.toolTip = getString(parentApplication.lang, "mute");
 				toggleMuteButton.selected = false;
 			}
 			
@@ -258,8 +287,13 @@
 			private function toggleDialButton(dial:Boolean):void{
 				if(dial){
 					dialButton.setStyle("fillColors",["0x42AB1F", "0x42AB1F"]);
+                    dialButton.toolTip = getString(parentApplication.lang, "call");
+                    dialButton.setStyle("icon", phone);
+
 				}else{
 					dialButton.setStyle("fillColors",["0xDE2121", "0xDE2121"]);
+                    dialButton.toolTip = getString(parentApplication.lang, "hangup");
+                    dialButton.setStyle("icon", hangup);
 				}
 			}
 			
@@ -392,15 +426,18 @@
 			private function toggleRTS():void{
 				if(!request2SpeakButton.selected){
 					request2SpeakButton.setStyle("icon", request2SpeakIcon);
+                    request2SpeakButton.toolTip = getString(parentApplication.lang, "rts");
 					withdrawRequest2Speak();
 				}else{
 					request2SpeakButton.setStyle("icon", withdrawRequest2SpeakIcon);
+                    request2SpeakButton.toolTip = getString(parentApplication.lang, "rts_withdraw");
 					request2Speak();
 				}
 			}
 			
 			private function resetRTSButton():void{
 				request2SpeakButton.setStyle("icon", request2SpeakIcon);
+                request2SpeakButton.toolTip = getString(parentApplication.lang, "rts");
 				request2SpeakButton.selected = false;
 			}
 			
@@ -434,7 +471,7 @@
 	
 	<mx:Button x="10" y="3" width="90" height="30" icon="{phone}" cornerRadius="0" fillAlphas="[1.0, 1.0]" fillColors="[0x42AB1F, 0x42AB1F]" click="toggleCall()" 
 		color="#FFFFFF" id="dialButton" themeColor="#42AB1F" enabled="false" visible="false"/>
-	<mx:Button x="10" y="36" width="90" height="30" toggle="false" icon="{micMute}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="toggleMuteDTMF()" color="#FFFFFF" id="toggleMuteButton"
+	<mx:Button x="10" y="36" width="90" height="30" toggle="false" icon="{micMute}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
 		 enabled="false" fillColors="[0xBBBBBB, 0xBBBBBB]" borderColor="0xAAAAAA"/>
 	<mx:Button x="10" y="69" width="90" height="30" toggle="true" icon="{request2SpeakIcon}" cornerRadius="0" fillAlphas="[1.0, 1.0]" click="toggleRTS()" color="#FFFFFF" 
 		id="request2SpeakButton"  enabled="false" visible="true" fillColors="[0xBBBBBB, 0xBBBBBB]"/>
