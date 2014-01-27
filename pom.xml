@@ -2,7 +2,7 @@
  <modelVersion>4.0.0</modelVersion>
  <groupId>eu.lindenbaum.flex</groupId>
  <artifactId>softphone</artifactId>
- <version>2.2.6</version>
+ <version>2.2.8</version>
 
  <packaging>swf</packaging>
  <properties>

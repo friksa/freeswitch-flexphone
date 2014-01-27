@@ -128,7 +128,7 @@
                 callOperatorButton.visible = true;
             }
 
-            dialButton.visible = !parentApplication.autodial;
+            //dialButton.visible = !parentApplication.autodial;
             var lang:String = parentApplication.lang;
             dialButton.toolTip = getString(lang, "call");
             toggleMuteButton.toolTip = getString(lang, "mute");
@@ -187,6 +187,9 @@
                         micIcon.toolTip = getString(parentApplication.lang, "unmute");
                         toggleMuteButton.setStyle("icon", micActive);
                         muted = true;
+                        if (parentApplication.muteMacro != null) {
+                            parentApplication.sendAllDtmf(parentApplication.muteMacro);
+                        }
                     }
                 }
                 else {
@@ -204,16 +207,10 @@
                     toggleMuteButton.setStyle("icon", micMute);
 //						resetMuteButton();
                     muted = false;
-//						if(parentApplication.unmuteMacro != null){
-//							parentApplication.sendAllDtmf(parentApplication.unmuteMacro);
-//						}
+					if(parentApplication.unmuteMacro != null){
+						parentApplication.sendAllDtmf(parentApplication.unmuteMacro);
+					}
                 }
-            }
-        }
-
-        private function toggleMuteDTMF():void {
-            if (parentApplication.muteMacro != null) {
-                parentApplication.sendAllDtmf(parentApplication.muteMacro);
             }
         }
 
@@ -475,7 +472,7 @@
 
     <mx:Button x="10" y="3" width="90" height="30" icon="{phone}" cornerRadius="0" fillAlphas="[1.0, 1.0]"
                fillColors="[0x42AB1F, 0x42AB1F]" click="toggleCall()"
-               color="#FFFFFF" id="dialButton" themeColor="#42AB1F" enabled="false" visible="false"/>
+               color="#FFFFFF" id="dialButton" themeColor="#42AB1F" enabled="false"/>
     <mx:Button x="10" y="36" width="90" height="30" toggle="false" icon="{micMute}" cornerRadius="0"
                fillAlphas="[1.0, 1.0]" click="toggleMute()" color="#FFFFFF" id="toggleMuteButton"
                enabled="false" fillColors="[0xBBBBBB, 0xBBBBBB]" borderColor="0xAAAAAA"/>
