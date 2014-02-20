@@ -30,26 +30,31 @@
                 call: "To participate audio-conference", hangup: "To leave audio-conference",
                 rts: "Signal request to speak", rts_withdraw: "Withdraw the request",
                 operator_call: "Connect with an operator",
+                call_terminated: "The call has been terminated",
                 mute: "Mute microphone", unmute: "Microphone loud"},
             es: {
                 call: "participar en audioconferencia", hangup: "abandonar la audioconferencia",
                 rts: "realizar intervención", rts_withdraw: "finalizar intervención",
                 operator_call: "conectarse con el operador",
+                call_terminated: "La llamada se ha finalizado",
                 mute: "silenciar el micrófono", unmute: "subir el volumen del micrófono"},
             de: {
                 call: "An Audio-Konferenz teilnehmen", hangup: "Audio-Konferenz verlassen",
                 rts: "Wortmeldung abgeben", rts_withdraw: "Wortmeldung zurücknehmen",
                 operator_call: "Mit dem Operator verbinden",
+                call_terminated: "Der Anruf wurde beendet",
                 mute: "Mikrofon stumm schalten", unmute: "Mikrofon laut schalten"},
             fr: {
                 call: "participer à la conférence audio", hangup: "quitter la conférence audio ",
                 rts: "laisser un message vocal", rts_withdraw: "Supprimer un message vocal ",
                 operator_call: "connecter à l’opérateur",
+                call_terminated: "L'appel a été interrompu",
                 mute: "mettre le micro en muet", unmute: "activer le son du micro "},
             it: {
                 call: "Call", hangup: "Hangup",
                 rts: "Request to speak", rts_withdraw: "Request to speak",
                 operator_call: "Operator Call",
+                call_terminated: "La chiamata è stata terminata",
                 mute: "Mute microphone", unmute: "Microphone loud"}
         };
 
@@ -134,6 +139,7 @@
             toggleMuteButton.toolTip = getString(lang, "mute");
             request2SpeakButton.toolTip = getString(lang, "rts");
             callOperatorButton.toolTip = getString(lang, "operator_call");
+            labelCloseWindow.text = getString(lang,"call_terminated");
         }
 
         public function initMicrophone():void {
@@ -318,6 +324,9 @@
             callOperatorButton.enabled = false;
 
             micIcon.source = micActive;
+            if(parentApplication.autodial){
+            	labelCloseWindow.visible = true;
+            }
         }
 
         private function netStatus(evt:NetStatusEvent):void {
@@ -491,4 +500,6 @@
     <mx:VSlider id="micSlider" x="173" y="30" height="106" minimum="0" maximum="100" value="50" snapInterval="5"
                 showDataTip="false"
                 allowTrackClick="true" liveDragging="true" thumbDrag="changeMicVolume(event)" enabled="false"/>
+    <mx:Text id="labelCloseWindow" x="0" y="0" height="100%" width="100%" text="close window" textAlign="center" 
+    	opaqueBackground = "#DEDEDE" visible="false" fontSize="20"/>
 </mx:Canvas>
